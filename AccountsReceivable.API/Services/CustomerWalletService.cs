@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using AccountsReceivable.API.Models;
+using System;
 
 namespace AccountsReceivable.API.Services
 {
@@ -14,8 +15,9 @@ namespace AccountsReceivable.API.Services
         #region Declarations
         private readonly AccountReceivableDataContext _context;
         private readonly IMapper _mapper;
+
         #endregion
-        
+
         #region Constructor
         public CustomerWalletService(AccountReceivableDataContext context, IMapper mapper)
         {
@@ -26,23 +28,51 @@ namespace AccountsReceivable.API.Services
 
         public async Task<CustomerWalletVM> AddUpdateCustomerWallet(CustomerWalletVM dto)
         {
-            if (dto != null)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerWalletId == dto.CustomerWalletId);
-                if (customerWallet == null)
+                try
                 {
-                    customerWallet = new CustomerWallet();
-                    CustomerWallet customerWalletData = _mapper.Map<CustomerWalletVM, CustomerWallet>(dto);
-                    _context.CustomerWallet.Add(customerWalletData);
+                    if (dto != null)
+                    {
+
+                        CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerWalletId == dto.CustomerWalletId);
+                        bool isNewCustomerWallet = false;
+                        CustomerWallet customerWalletData = _mapper.Map<CustomerWalletVM, CustomerWallet>(dto);
+                        if (customerWallet == null)
+                        {
+                            customerWallet = new CustomerWallet();
+                            isNewCustomerWallet = true;
+                            customerWallet.CreatedDate = DateTime.UtcNow;
+                            _context.CustomerWallet.Add(customerWalletData);
+                        }
+                        else
+                        {
+                            isNewCustomerWallet = false;
+                            customerWallet.ModifiedDate = DateTime.UtcNow;
+                            _context.Entry(customerWallet).CurrentValues.SetValues(dto);
+                        }
+                        int id = await _context.SaveChangesAsync();
+                        if (isNewCustomerWallet && id > 0 && customerWallet.CreditLimit != null)
+                        {
+                            CustomerWalletTransaction CWalletTransaction = new CustomerWalletTransaction();
+                            CWalletTransaction.CreatedDate = DateTime.UtcNow;
+                            CWalletTransaction.TransactionAmount = dto.CreditLimit;
+                            CWalletTransaction.TransactionType = "Deposit";
+                            CWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
+                            _context.CustomerWalletTransaction.Add(CWalletTransaction);
+                            await _context.SaveChangesAsync();
+                        }
+                        await transaction.CommitAsync(); //Execute when both tables data will inserted.
+                        return dto;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _context.Entry(customerWallet).CurrentValues.SetValues(dto);
+                    await transaction.RollbackAsync();
                 }
-                await _context.SaveChangesAsync();
                 return dto;
             }
-            return dto;
+
         }
         public async Task Delete(int id)
         {

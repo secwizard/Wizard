@@ -31,9 +31,11 @@ namespace AccountsReceivable.API.Services
                 CustomerWalletTransactionDetail customerWalletTransactionDetail = await _context.CustomerWalletTransactionDetail.FirstOrDefaultAsync(x => x.CustomerWalletTransactionDetailId == dto.CustomerWalletTransactionDetailId);
                 if (customerWalletTransactionDetail == null)
                 {
-                    customerWalletTransactionDetail = new CustomerWalletTransactionDetail();
-                    CustomerWalletTransactionDetail CustomerWalletTransactionDetailData = _mapper.Map<CustomerWalletTransactionDetailVM, CustomerWalletTransactionDetail>(dto);
-                    _context.CustomerWalletTransactionDetail.Add(CustomerWalletTransactionDetailData);
+                    //var customerwalletTransactionDetails = await _context.CustomerWalletTransactionDetail.ToListAsync();
+                    //List<CustomerWalletTransactionDetail> data = _mapper.Map<List<CustomerWalletTransactionDetail>, List<CustomerWalletTransactionDetail>>(customerwalletTransactionDetails);
+
+                    //CustomerWalletTransactionDetail CustomerWalletTransactionDetailData = _mapper.Map<List<CustomerWalletTransactionDetailVM>, List<CustomerWalletTransactionDetail>>(customerwalletTransactionDetails);
+                    _context.CustomerWalletTransactionDetail.Add(customerWalletTransactionDetail);
                 }
                 else
                 {

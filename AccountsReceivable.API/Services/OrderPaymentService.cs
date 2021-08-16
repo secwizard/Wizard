@@ -27,23 +27,78 @@ namespace AccountsReceivable.API.Services
         #endregion
         public async Task<OrderPaymentVM> AddUpdateOrderPayment(OrderPaymentVM dto)
         {
-            if (dto != null)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                OrderPayment orderPayment = await _context.OrderPayment.FirstOrDefaultAsync(x => x.OrderPaymentId == dto.OrderPaymentId);
-                if (orderPayment == null)
+                try
                 {
-                    orderPayment = new OrderPayment();
-                    OrderPayment orderPaymentData = _mapper.Map<OrderPaymentVM, OrderPayment>(dto);
-                    _context.OrderPayment.Add(orderPaymentData);
+                    if (dto != null)
+                    {
+                        var OrderpaymentDataInserted = false;
+                        OrderPayment orderPayment = await _context.OrderPayment.FirstOrDefaultAsync(x => x.OrderPaymentId == dto.OrderPaymentId);
+                        if (orderPayment == null)
+                        {
+                            OrderpaymentDataInserted = true;
+                            orderPayment = new OrderPayment();
+                            OrderPayment orderPaymentData = _mapper.Map<OrderPaymentVM, OrderPayment>(dto);
+                            _context.OrderPayment.Add(orderPaymentData);
+                        }
+                        else
+                        {
+                            _context.Entry(orderPayment).CurrentValues.SetValues(dto);
+                        }
+                        int id = await _context.SaveChangesAsync();
+                        if (id > 0 && OrderpaymentDataInserted && dto.TransactionModeId != null && dto.TransactionModeId <= 3)
+                        {
+                            CustomerWalletTransactionDetail CustTranDetails = new CustomerWalletTransactionDetail();
+                            if (dto.TransactionModeId == 0)
+                            {
+                                CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
+                                customerWalletTransaction.CustomerWalletId = dto.CustomerWalletId;
+                                customerWalletTransaction.TransactionAmount = dto.Amount;
+                                customerWalletTransaction.CreatedDate = DateTime.UtcNow;
+                                customerWalletTransaction.CreatedBy = dto.CreatedBy;
+                                customerWalletTransaction.TransactionType = "Order";
+                                customerWalletTransaction.TransactionModeId = dto.TransactionModeId;
+                                _context.CustomerWalletTransaction.Add(customerWalletTransaction);
+                                CustTranDetails.ReferenceId = dto.OrderId;
+                                CustTranDetails.Amount = dto.Amount;
+                                CustTranDetails.CreatedDate = DateTime.UtcNow;
+                                CustTranDetails.CreatedBy = dto.CreatedBy;
+                                _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
+                            }
+                            else
+                            {
+                                CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
+                                customerWalletTransaction.CustomerWalletId = dto.CustomerWalletId;
+                                customerWalletTransaction.TransactionAmount = dto.Amount;
+                                customerWalletTransaction.CreatedDate = DateTime.UtcNow;
+                                customerWalletTransaction.CreatedBy = dto.CreatedBy;
+                                customerWalletTransaction.TransactionType = "OrderPayment";
+                                customerWalletTransaction.TransactionModeId = dto.TransactionModeId;
+                                _context.CustomerWalletTransaction.Add(customerWalletTransaction);
+                                CustTranDetails.ReferenceId = dto.OrderId;
+                                CustTranDetails.Amount = Convert.ToInt32("-" + dto.Amount);
+                                CustTranDetails.CreatedDate = DateTime.UtcNow;
+                                CustTranDetails.CreatedBy = dto.CreatedBy;
+                                _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
+                            }
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();//Execute when both tables data will inserted.
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Invalid request.");
+                        }
+                        return dto;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _context.Entry(orderPayment).CurrentValues.SetValues(dto);
+                    await transaction.RollbackAsync();
                 }
-                await _context.SaveChangesAsync();
                 return dto;
             }
-            return dto;
         }
         public async Task Delete(int id)
         {

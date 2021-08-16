@@ -6,7 +6,7 @@ namespace AccountsReceivable.API.ViewModels
         public int CustomerWalletTransactionDetailId { get; set; }
         public int? CustomerWalletTransactionId { get; set; }
         public string ReferenceTable { get; set; }
-        public int? ReferenceId { get; set; }
+        public string ReferenceId { get; set; }
         public int? Amount { get; set; }
     }
 }

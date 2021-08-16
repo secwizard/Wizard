@@ -21,7 +21,7 @@ namespace AccountsReceivable.API.Services
         {
             _context = context;
             _mapper = mapper;
-        } 
+        }
         #endregion
 
         public async Task<CustomerWalletTransactionVM> AddUpdateCustomerWalletTransaction(CustomerWalletTransactionVM dto)
