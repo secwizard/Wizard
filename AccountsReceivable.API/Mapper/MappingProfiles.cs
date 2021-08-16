@@ -12,6 +12,7 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<CustomerWalletTransactionDetailVM, CustomerWalletTransactionDetail>().ReverseMap();
             CreateMap<OrderPaymentVM, OrderPayment>().ReverseMap();
             CreateMap<TransactionModeVM, TransactionMode>().ReverseMap();
+            CreateMap<DepositWalletAmount, CustomerWalletVM>().ReverseMap();
         }
     }
 }

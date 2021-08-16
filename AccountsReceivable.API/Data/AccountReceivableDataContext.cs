@@ -12,5 +12,6 @@ namespace AccountsReceivable.API.Data
         public DbSet<CustomerWalletTransactionDetail> CustomerWalletTransactionDetail { get; set; }
         public DbSet<OrderPayment> OrderPayment { get; set; }
         public DbSet<TransactionMode> TransactionMode { get; set; }
+        public DbSet<DepositWalletAmount> DepositWalletAmount { get; set; }
     }
 }

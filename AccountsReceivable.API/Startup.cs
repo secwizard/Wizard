@@ -37,6 +37,7 @@ namespace AccountsReceivable.API
             services.AddScoped<ICustomerWalletTransactionDetailService, CustomerWalletTransactionDetailService>();
             services.AddScoped<IOrderPaymentService, OrderPaymentService>();
             services.AddScoped<ITransactionModeService, TransactionModeService>();
+            services.AddScoped<IDepositWalletAmountService, DepositWalletAmountService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
