@@ -7,7 +7,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<List<TransactionModeVM>> GetTransactionMode();
         Task<TransactionModeVM> GetTransactionModeById(int id);
-        Task<TransactionModeVM> AddUpdateTransactionMode(TransactionModeVM dto);
+   //     Task<TransactionModeVM> AddUpdateTransactionMode(TransactionModeVM dto);
         Task Delete(int id);
     }
 }

@@ -7,7 +7,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<List<CustomerWalletTransactionDetailVM>> GetCustomerWalletTransactionDetails();
         Task<CustomerWalletTransactionDetailVM> GetCustomerWalletTransactionDetailById(int id);
-        Task<CustomerWalletTransactionDetailVM> AddUpdateCustomerWalletTransactionDetail(CustomerWalletTransactionDetailVM dto);
+   //     Task<CustomerWalletTransactionDetailVM> AddUpdateCustomerWalletTransactionDetail(CustomerWalletTransactionDetailVM dto);
         Task Delete(int id);
     }
 }

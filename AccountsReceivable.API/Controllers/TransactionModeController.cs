@@ -20,20 +20,20 @@ namespace AccountsReceivable.API.Controllers
             _transactionModeService = transactionModeService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddOrUpdateTransactionMode(TransactionModeVM transactionModeVM)
-        {
-            try
-            {
-                return Ok(await _transactionModeService.AddUpdateTransactionMode(transactionModeVM));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddOrUpdateTransactionMode(TransactionModeVM transactionModeVM)
+        //{
+        //    try
+        //    {
+        //        return Ok(await _transactionModeService.AddUpdateTransactionMode(transactionModeVM));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex);
+        //    }
+        //}
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetTransactionModes()
         {
             try
@@ -46,7 +46,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetTransactionMode(int id)
         {
             try
