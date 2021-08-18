@@ -9,7 +9,6 @@ namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
     public class CustomerWalletTransactionController : Controller
     {
         private readonly ICustomerWalletTransactionService _customerWalletTransactionService;
