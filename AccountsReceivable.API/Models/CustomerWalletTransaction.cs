@@ -17,6 +17,6 @@ namespace AccountsReceivable.API.Models
         public string TransactionType { get; set; }
         public int? TransactionModeId { get; set; }
         public DateTime? Date { get; set; }
-        public string? CreditCard { get; set; } = null!;
+        public string CreditCard { get; set; } 
     }
 }

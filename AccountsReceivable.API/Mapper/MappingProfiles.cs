@@ -17,7 +17,9 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<DepositWalletAmount, CustomerWalletVM>().ReverseMap();
             CreateMap<CustomerWalletRequest, CustomerWallet>().ReverseMap();
             CreateMap<OrderPaymentRequest, OrderPayment>().ReverseMap();
-
+            CreateMap<CashBackMasterVM, CashBackMasters>().ReverseMap();
+            CreateMap<CashBackTransactionVM, CashBackTransaction>().ReverseMap();
+            CreateMap<CashbackExclusionVM, CashbackExclusion>().ReverseMap();
         }
     }
 }
