@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Services.Interface;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,7 +18,7 @@ namespace AccountsReceivable.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOrUpdateOrderPayment(OrderPaymentVM orderPaymentVM)
+        public async Task<IActionResult> AddOrUpdateOrderPayment(OrderPaymentRequest orderPaymentVM)
         {
             try
             {
@@ -29,7 +30,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetOrderPaymentDetails()
         {
             try
@@ -42,7 +43,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetOrderPaymentDetail(int id)
         {
             try

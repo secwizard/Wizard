@@ -1,5 +1,6 @@
 ﻿using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class CustomerWalletTransactionController : Controller
     {
         private readonly ICustomerWalletTransactionService _customerWalletTransactionService;
@@ -17,20 +19,20 @@ namespace AccountsReceivable.API.Controllers
             _customerWalletTransactionService = customerWalletTransactionService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddOrUpdateCustomerWalletTransaction(CustomerWalletTransactionVM customerWalletTransactionVM)
-        {
-            try
-            {
-                return Ok(await _customerWalletTransactionService.AddUpdateCustomerWalletTransaction(customerWalletTransactionVM));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddOrUpdateCustomerWalletTransaction(CustomerWalletTransactionVM customerWalletTransactionVM)
+        //{
+        //    try
+        //    {
+        //        return Ok(await _customerWalletTransactionService.AddUpdateCustomerWalletTransaction(customerWalletTransactionVM));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex);
+        //    }
+        //}
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWalletTransactions()
         {
             try
@@ -43,7 +45,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWalletTransaction(int id)
         {
             try
