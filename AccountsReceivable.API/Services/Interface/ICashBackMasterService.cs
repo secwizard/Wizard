@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.ViewModels;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<List<CashBackMasterVM>> GetCashBackMaster();
         Task<CashBackMasterVM> GetCashBackMasterById(int id);
-        Task<CashBackMasterVM> AddOrUpdateCashBackMaster(CashBackMasterVM dto);
+        Task<CashbackMasterRequest> AddOrUpdateCashBackMaster(CashbackMasterRequest dto);
         Task Delete(int id);
     }
 }

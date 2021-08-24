@@ -40,5 +40,32 @@ namespace AccountsReceivable.API.Services
             }
             return dto;
         }
+        public async Task<List<CashbackExclusionVM>> GetCashbackExclusion()
+        {
+            List<CashbackExclusion> cashbackExclusions = await _context.CashbackExclusion.ToListAsync();
+
+            List<CashbackExclusionVM> data = _mapper.Map<List<CashbackExclusion>, List<CashbackExclusionVM>>(cashbackExclusions);
+
+            return data;
+        }
+        public async Task<CashbackExclusionVM> GetCashbackExclusionById(int id)
+        {
+            CashbackExclusion cashbackExclusion = await _context
+               .CashbackExclusion
+               .SingleOrDefaultAsync(x => x.CashbackExclusionId == id);
+            return _mapper.Map<CashbackExclusion, CashbackExclusionVM>(cashbackExclusion);
+        }
+        public async Task Delete(int id)
+        {
+            if (id > 0)
+            {
+                CashbackExclusion cashbackExclusion = _context.CashbackExclusion.Find(id);
+                if (cashbackExclusion != null)
+                {
+                    _context.CashbackExclusion.Remove(cashbackExclusion);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
     }
 }

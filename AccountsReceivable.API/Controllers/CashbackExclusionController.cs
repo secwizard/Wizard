@@ -29,5 +29,43 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> GetCashbackExclusion()
+        {
+            try
+            {
+                return Ok(await _cashbackExclusionService.GetCashbackExclusion());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetCashbackExclusionById(int id)
+        {
+            try
+            {
+                return Ok(await _cashbackExclusionService.GetCashbackExclusionById(id));
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex);
+            }
+        }
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _cashbackExclusionService.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

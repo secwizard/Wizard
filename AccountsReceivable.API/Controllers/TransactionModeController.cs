@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Services;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Services;
 using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -15,23 +16,23 @@ namespace AccountsReceivable.API.Controllers
     public class TransactionModeController : ControllerBase
     {
         private readonly ITransactionModeService _transactionModeService;
-        public TransactionModeController(TransactionModeService transactionModeService)
+        public TransactionModeController(ITransactionModeService transactionModeService)
         {
             _transactionModeService = transactionModeService;
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> AddOrUpdateTransactionMode(TransactionModeVM transactionModeVM)
-        //{
-        //    try
-        //    {
-        //        return Ok(await _transactionModeService.AddUpdateTransactionMode(transactionModeVM));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex);
-        //    }
-        //}
+        [HttpPost]
+        public async Task<IActionResult> AddOrUpdateTransactionMode(TransactionModeRequest transactionModeRequest)
+        {
+            try
+            {
+                return Ok(await _transactionModeService.AddUpdateTransactionMode(transactionModeRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> GetTransactionModes()

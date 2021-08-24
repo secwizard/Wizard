@@ -20,6 +20,9 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<CashBackMasterVM, CashBackMasters>().ReverseMap();
             CreateMap<CashBackTransactionVM, CashBackTransaction>().ReverseMap();
             CreateMap<CashbackExclusionVM, CashbackExclusion>().ReverseMap();
+            CreateMap<TransactionModeRequest, TransactionMode>().ReverseMap();
+            CreateMap<CashbackMasterRequest, CashBackMasters>().ReverseMap();
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Services.Interface;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,11 +19,11 @@ namespace AccountsReceivable.API.Controllers
             _cashBackMasterService = cashBackMasterService;
         }
         [HttpPost]
-        public async Task<IActionResult> AddOrUpdateCashBackMaster(CashBackMasterVM cashBackMasterVM)
+        public async Task<IActionResult> AddOrUpdateCashBackMaster(CashbackMasterRequest cashbackMasterRequest)
         {
             try
             {
-                return Ok(await _cashBackMasterService.AddOrUpdateCashBackMaster(cashBackMasterVM));
+                return Ok(await _cashBackMasterService.AddOrUpdateCashBackMaster(cashbackMasterRequest));
             }
             catch (Exception ex)
             {

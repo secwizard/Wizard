@@ -7,7 +7,6 @@ namespace AccountsReceivable.API.ViewModels
 {
     public class CashBackMasterVM
     {
-        public int CashBackMasterId { get; set; }
         public int? CustomerId { get; set; }
         public int? MinimumBusinessAmount { get; set; }
         public int? MaximumCashbackAmount { get; set; }

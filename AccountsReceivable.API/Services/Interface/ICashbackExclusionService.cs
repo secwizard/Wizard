@@ -8,9 +8,9 @@ namespace AccountsReceivable.API.Services.Interface
 {
     public interface ICashbackExclusionService
     {
-        //Task<List<CashbackExclusionVM>> GetCashbackExclusion();
-        //Task<CashbackExclusionVM> GetCashbackExclusionById(int id);
+        Task<List<CashbackExclusionVM>> GetCashbackExclusion();
+        Task<CashbackExclusionVM> GetCashbackExclusionById(int id);
         Task<CashbackExclusionVM> AddOrUpdateCashbackExclusion(CashbackExclusionVM dto);
-        //Task Delete(int id);
+        Task Delete(int id);
     }
 }

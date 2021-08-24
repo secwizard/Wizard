@@ -1,13 +1,13 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace AccountsReceivable.API.Models
+namespace AccountsReceivable.API.Models.RequestModel
 {
-    [Table("CashBackMasters")]
-    public class CashBackMasters
+    public class CashbackMasterRequest
     {
-        [Key]
+        //public int CashBackMasterId { get; set; }
         public int? CustomerId { get; set; }
         public int? MinimumBusinessAmount { get; set; }
         public int? MaximumCashbackAmount { get; set; }
