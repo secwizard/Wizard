@@ -7,6 +7,7 @@ namespace AccountsReceivable.API.ViewModels
     {
         public int CustomerWalletTransactionId { get; set; }
         public int? CustomerWalletId { get; set; }
+        public int? CustomerId { get; set; }
         public int? TransactionAmount { get; set; }
         public string TransactionType { get; set; }
         public int? TransactionModeId { get; set; }

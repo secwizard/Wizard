@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Services.Interface;
+﻿using AccountsReceivable.API.Helpers;
+using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,20 +16,20 @@ namespace AccountsReceivable.API.Controllers
             _customerWalletTransactionDetailService = customerWalletTransactionDetailService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddOrUpdateCustomerWalletTransactionDetail(CustomerWalletTransactionDetailVM customerWalletTransactionVM)
-        {
-            try
-            {
-                return Ok(await _customerWalletTransactionDetailService.AddUpdateCustomerWalletTransactionDetail(customerWalletTransactionVM));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddOrUpdateCustomerWalletTransactionDetail(CustomerWalletTransactionDetailVM customerWalletTransactionVM)
+        //{
+        //    try
+        //    {
+        //        return Ok(await _customerWalletTransactionDetailService.AddUpdateCustomerWalletTransactionDetail(customerWalletTransactionVM));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex);
+        //    }
+        //}
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWalletTransactionDetails()
         {
             try
@@ -41,7 +42,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWalletTransactionDetail(int id)
         {
             try

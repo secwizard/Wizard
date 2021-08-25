@@ -3,26 +3,39 @@ using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class OrderPaymentController : ControllerBase
+    public class CashBackMasterController : Controller
     {
-        private readonly IOrderPaymentService _orderPaymentService;
-        public OrderPaymentController(IOrderPaymentService orderPaymentService)
+        private readonly ICashBackMasterService _cashBackMasterService;
+        public CashBackMasterController(ICashBackMasterService cashBackMasterService)
         {
-            _orderPaymentService = orderPaymentService;
+            _cashBackMasterService = cashBackMasterService;
         }
-
         [HttpPost]
-        public async Task<IActionResult> AddOrUpdateOrderPayment(OrderPaymentRequest orderPaymentVM)
+        public async Task<IActionResult> AddOrUpdateCashBackMaster(CashbackMasterRequest cashbackMasterRequest)
         {
             try
             {
-                return Ok(await _orderPaymentService.AddUpdateOrderPayment(orderPaymentVM));
+                return Ok(await _cashBackMasterService.AddOrUpdateCashBackMaster(cashbackMasterRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetCashBackMaster()
+        {
+            try
+            {
+                return Ok(await _cashBackMasterService.GetCashBackMaster());
             }
             catch (Exception ex)
             {
@@ -31,24 +44,11 @@ namespace AccountsReceivable.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetOrderPaymentDetails()
+        public async Task<IActionResult> GetCashBackMasterById(int id)
         {
             try
             {
-                return Ok(await _orderPaymentService.GetOrderPayment());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> GetOrderPaymentDetail(int id)
-        {
-            try
-            {
-                return Ok(await _orderPaymentService.GetOrderPaymentById(id));
+                return Ok(await _cashBackMasterService.GetCashBackMasterById(id));
             }
             catch (Exception ex)
             {
@@ -57,11 +57,11 @@ namespace AccountsReceivable.API.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteOrderPaymentDetail(int id)
+        public async Task<IActionResult> DeleteCashBackMaster(int id)
         {
             try
             {
-                await _orderPaymentService.Delete(id);
+                await _cashBackMasterService.Delete(id);
                 return Ok();
             }
             catch (Exception ex)
@@ -69,7 +69,5 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
-
-
     }
 }

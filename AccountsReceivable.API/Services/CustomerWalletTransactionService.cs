@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using AccountsReceivable.API.Models;
 using System.Collections.Generic;
+using System;
 
 namespace AccountsReceivable.API.Services
 {
@@ -24,26 +25,30 @@ namespace AccountsReceivable.API.Services
         }
         #endregion
 
-        public async Task<CustomerWalletTransactionVM> AddUpdateCustomerWalletTransaction(CustomerWalletTransactionVM dto)
-        {
-            if (dto != null)
-            {
-                CustomerWalletTransaction CustomerWalletTransaction = await _context.CustomerWalletTransaction.FirstOrDefaultAsync(x => x.CustomerWalletTransactionId == dto.CustomerWalletTransactionId);
-                if (CustomerWalletTransaction == null)
-                {
-                    CustomerWalletTransaction = new CustomerWalletTransaction();
-                    CustomerWalletTransaction CustomerWalletTransactionData = _mapper.Map<CustomerWalletTransactionVM, CustomerWalletTransaction>(dto);
-                    _context.CustomerWalletTransaction.Add(CustomerWalletTransactionData);
-                }
-                else
-                {
-                    _context.Entry(CustomerWalletTransaction).CurrentValues.SetValues(dto);
-                }
-                await _context.SaveChangesAsync();
-                return dto;
-            }
-            return dto;
-        }
+        //public async Task<CustomerWalletTransactionVM> AddUpdateCustomerWalletTransaction(CustomerWalletTransactionVM dto)
+        //{
+        //    if (dto != null)
+        //    {
+        //        CustomerWalletTransaction CustomerWalletTransaction = await _context.CustomerWalletTransaction.FirstOrDefaultAsync(x => x.CustomerWalletTransactionId == dto.CustomerWalletTransactionId);
+        //        if (CustomerWalletTransaction == null)
+        //        {
+        //            CustomerWalletTransaction = new CustomerWalletTransaction();
+        //            CustomerWalletTransaction CustomerWalletTransactionData = _mapper.Map<CustomerWalletTransactionVM, CustomerWalletTransaction>(dto);
+        //            CustomerWalletTransactionData.CreatedBy = dto.CustomerId;
+        //            CustomerWalletTransactionData.CreatedDate = DateTime.UtcNow;
+        //            _context.CustomerWalletTransaction.Add(CustomerWalletTransactionData);
+        //        }
+        //        else
+        //        {
+        //            CustomerWalletTransaction.ModifiedBy= dto.CustomerId;
+        //            CustomerWalletTransaction.ModifiedDate = DateTime.UtcNow;
+        //            _context.Entry(CustomerWalletTransaction).CurrentValues.SetValues(dto);
+        //        }
+        //        await _context.SaveChangesAsync();
+        //        return dto;
+        //    }
+        //    return dto;
+        //}
         public async Task Delete(int id)
         {
             if (id > 0)

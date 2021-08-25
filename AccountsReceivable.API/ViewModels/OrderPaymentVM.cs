@@ -7,6 +7,7 @@ namespace AccountsReceivable.API.ViewModels
         public int OrderPaymentId { get; set; }
         public string OrderId { get; set; }
         public int? Amount { get; set; }
+        public int? CustomerId { get; set; }
         public int? TransactionModeId { get; set; }
         public int? CustomerWalletId { get; set; }
         public DateTime? TransactionDate { get; set; }

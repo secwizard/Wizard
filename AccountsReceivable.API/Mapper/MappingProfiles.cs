@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AccountsReceivable.API.Models;
 using AccountsReceivable.API.ViewModels;
+using AccountsReceivable.API.Models.RequestModel;
+
 namespace AccountsReceivable.API.Mapper
 {
     public class MappingProfiles : Profile
@@ -13,6 +15,14 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<OrderPaymentVM, OrderPayment>().ReverseMap();
             CreateMap<TransactionModeVM, TransactionMode>().ReverseMap();
             CreateMap<DepositWalletAmount, CustomerWalletVM>().ReverseMap();
+            CreateMap<CustomerWalletRequest, CustomerWallet>().ReverseMap();
+            CreateMap<OrderPaymentRequest, OrderPayment>().ReverseMap();
+            CreateMap<CashBackMasterVM, CashBackMasters>().ReverseMap();
+            CreateMap<CashBackTransactionVM, CashBackTransaction>().ReverseMap();
+            CreateMap<CashbackExclusionVM, CashbackExclusion>().ReverseMap();
+            CreateMap<TransactionModeRequest, TransactionMode>().ReverseMap();
+            CreateMap<CashbackMasterRequest, CashBackMasters>().ReverseMap();
+
         }
     }
 }
