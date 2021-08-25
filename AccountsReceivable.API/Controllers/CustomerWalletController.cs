@@ -1,5 +1,7 @@
-﻿using AccountsReceivable.API.Services.Interface;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -18,7 +20,7 @@ namespace AccountsReceivable.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddOrUpdateCustomerWallet(CustomerWalletVM customerWalletVM)
+        public async Task<IActionResult> AddOrUpdateCustomerWallet(CustomerWalletRequest customerWalletVM)
         {
             try
             {
@@ -30,7 +32,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWallets()
         {
             try
@@ -43,7 +45,7 @@ namespace AccountsReceivable.API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetCustomerWallet(int id)
         {
             try

@@ -1,4 +1,5 @@
 ﻿using AccountsReceivable.API.Entities.BaseEntities;
+using System;
 
 namespace AccountsReceivable.API.ViewModels
 {

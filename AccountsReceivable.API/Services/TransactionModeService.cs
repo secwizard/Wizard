@@ -1,9 +1,11 @@
 ﻿using AccountsReceivable.API.Data;
 using AccountsReceivable.API.Models;
+using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace AccountsReceivable.API.Services
@@ -23,15 +25,16 @@ namespace AccountsReceivable.API.Services
         }
         #endregion
 
-        public async Task<TransactionModeVM> AddUpdateTransactionMode(TransactionModeVM dto)
+        public async Task<TransactionModeRequest> AddUpdateTransactionMode(TransactionModeRequest dto)
         {
             if (dto != null)
             {
-                TransactionMode transactionMode = await _context.TransactionMode.FirstOrDefaultAsync(x => x.TransactionModeId == dto.TransactionModeId);
+                TransactionMode transactionMode = await _context.TransactionMode.FirstOrDefaultAsync(x => x.ModeName == dto.ModeName);
                 if (transactionMode == null)
                 {
                     transactionMode = new TransactionMode();
-                    TransactionMode transactionModeData = _mapper.Map<TransactionModeVM, TransactionMode>(dto);
+                    TransactionMode transactionModeData = _mapper.Map<TransactionModeRequest, TransactionMode>(dto);
+                    transactionModeData.CreatedDate = DateTime.UtcNow;
                     _context.TransactionMode.Add(transactionModeData);
                 }
                 else

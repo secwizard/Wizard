@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.ViewModels;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace AccountsReceivable.API.Services.Interface
@@ -7,7 +8,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<List<TransactionModeVM>> GetTransactionMode();
         Task<TransactionModeVM> GetTransactionModeById(int id);
-        Task<TransactionModeVM> AddUpdateTransactionMode(TransactionModeVM dto);
+        Task<TransactionModeRequest> AddUpdateTransactionMode(TransactionModeRequest dto);
         Task Delete(int id);
     }
 }

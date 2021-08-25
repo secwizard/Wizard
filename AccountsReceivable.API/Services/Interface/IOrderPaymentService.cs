@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.ViewModels;
+﻿using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.ViewModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<List<OrderPaymentVM>> GetOrderPayment();
         Task<OrderPaymentVM> GetOrderPaymentById(int id);
-        Task<OrderPaymentVM> AddUpdateOrderPayment(OrderPaymentVM dto);
+        Task<OrderPaymentRequest> AddUpdateOrderPayment(OrderPaymentRequest dto);
         Task Delete(int id);
     }
 }

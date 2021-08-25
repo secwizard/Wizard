@@ -17,17 +17,17 @@ namespace AccountsReceivable.API.Controllers
             _ICustomerWalletService = customerWalletService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddUpdateDepositWalletAmount(CustomerWalletVM CustomerWalletVM)
-        {
-            try
-            {
-                return Ok(await _ICustomerWalletService.AddUpdateCustomerWallet(CustomerWalletVM));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddUpdateDepositWalletAmount(CustomerWalletVM CustomerWalletVM)
+        //{
+        //    try
+        //    {
+        //        return Ok(await _ICustomerWalletService.AddUpdateCustomerWallet(CustomerWalletVM));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex);
+        //    }
+        //}
     }
 }
