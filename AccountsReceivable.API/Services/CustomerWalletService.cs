@@ -34,7 +34,6 @@ namespace AccountsReceivable.API.Services
                 {
                     if (dto != null)
                     {
-
                         CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerWalletId == dto.CustomerWalletId);
                         bool isNewCustomerWallet = false;
                         CustomerWallet customerWalletData = _mapper.Map<CustomerWalletVM, CustomerWallet>(dto);
