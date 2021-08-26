@@ -25,21 +25,11 @@ namespace AccountsReceivable.API
         {
             services.AddDbContext<AccountReceivableDataContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
             services.AddAutoMapper(typeof(MappingProfiles));
-
             services.AddSwaggerGen();
-
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
-            services.AddScoped<ICustomerWalletService, CustomerWalletService>();
-            services.AddScoped<ICustomerWalletTransactionService, CustomerWalletTransactionService>();
-            services.AddScoped<ICustomerWalletTransactionDetailService, CustomerWalletTransactionDetailService>();
-            services.AddScoped<IOrderPaymentService, OrderPaymentService>();
-            services.AddScoped<ITransactionModeService, TransactionModeService>();
-            services.AddScoped<ICashBackMasterService, CashBackMasterService>();
-            services.AddScoped<ICashBackTransactionService, CashBackTransactionService>();
-            services.AddScoped<ICashbackExclusionService, CashbackExclusionService>();
+            services.AddScoped<IUpdateTransactionService, UpdateTransactionService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,7 +47,7 @@ namespace AccountsReceivable.API
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "HRSM");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountsReceivable");
             });
 
             app.UseEndpoints(endpoints =>

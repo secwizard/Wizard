@@ -9,20 +9,14 @@ namespace AccountsReceivable.API.Mapper
     {
         public MappingProfiles()
         {
-            CreateMap<CustomerWalletVM, CustomerWallet>().ReverseMap();
-            CreateMap<CustomerWalletTransactionVM, CustomerWalletTransaction>().ReverseMap();
-            CreateMap<CustomerWalletTransactionDetailVM, CustomerWalletTransactionDetail>().ReverseMap();
             CreateMap<OrderPaymentVM, OrderPayment>().ReverseMap();
-            CreateMap<TransactionModeVM, TransactionMode>().ReverseMap();
-            CreateMap<DepositWalletAmount, CustomerWalletVM>().ReverseMap();
             CreateMap<CustomerWalletRequest, CustomerWallet>().ReverseMap();
             CreateMap<OrderPaymentRequest, OrderPayment>().ReverseMap();
-            CreateMap<CashBackMasterVM, CashBackMasters>().ReverseMap();
-            CreateMap<CashBackTransactionVM, CashBackTransaction>().ReverseMap();
-            CreateMap<CashbackExclusionVM, CashbackExclusion>().ReverseMap();
             CreateMap<TransactionModeRequest, TransactionMode>().ReverseMap();
             CreateMap<CashbackMasterRequest, CashBackMasters>().ReverseMap();
-
+            CreateMap<UpdateTransaction, CustomerWallet>().ReverseMap();
+            CreateMap<OrderPaymentRequest, CustomerWallet>().ReverseMap();
+            CreateMap<OrderWithOutPaymentRequest, CustomerWallet>().ReverseMap();
         }
     }
 }
