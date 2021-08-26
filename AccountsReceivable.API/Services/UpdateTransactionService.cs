@@ -12,12 +12,10 @@ using System.Threading.Tasks;
 
 namespace AccountsReceivable.API.Services
 {
-
     public class UpdateTransactionService : IUpdateTransactionService
     {
         private readonly AccountReceivableDataContext _context;
         private readonly IMapper _mapper;
-
         public UpdateTransactionService(AccountReceivableDataContext context, IMapper mapper)
         {
             _context = context;
@@ -118,7 +116,9 @@ namespace AccountsReceivable.API.Services
                                 CustTranDetails.ReferenceId = dto.OrderId;
                                 CustTranDetails.Amount = Convert.ToInt32("-" + dto.Amount);
                                 CustTranDetails.CreatedDate = DateTime.UtcNow;
+                                CustTranDetails.CustomerId = dto.CustomerId;
                                 CustTranDetails.CreatedBy = dto.CustomerId;
+                                CustTranDetails.CustomerWalletTransactionId = customerWalletTransaction.CustomerWalletTransactionId;
                                 _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
                             }
 
