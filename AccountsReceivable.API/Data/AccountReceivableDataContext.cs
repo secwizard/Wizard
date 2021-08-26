@@ -1,5 +1,7 @@
 ﻿using AccountsReceivable.API.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Entity.Infrastructure;
+
 namespace AccountsReceivable.API.Data
 {
     public class AccountReceivableDataContext:DbContext
