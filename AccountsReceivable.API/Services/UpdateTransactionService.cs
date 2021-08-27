@@ -40,7 +40,7 @@ namespace AccountsReceivable.API.Services
                             _context.Entry(customerWallet).CurrentValues.SetValues(dto);
                             CustomerWalletTransaction CWalletTransaction = new CustomerWalletTransaction();
                             CWalletTransaction.ModifiedDate = DateTime.UtcNow;
-                            CWalletTransaction.ModifiedBy = customerWallet.CustomerId;
+                            CWalletTransaction.ModifiedBy = dto.CustomerId;
                             CWalletTransaction.TransactionAmount = dto.Amount;
                             CWalletTransaction.TransactionType = "Deposit";
                             CWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
@@ -68,28 +68,28 @@ namespace AccountsReceivable.API.Services
                     if (dto != null)
                     {
                         CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
-                        OrderPayment orderPayment = await _context.OrderPayment.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
+                        OrderPayment orderPayment = new OrderPayment();
                         if (customerWallet != null)
                         {
                             if (dto.TransactionMode.ToLower() == "creditCard")
                             {
                                 orderPayment.TransactionModeId = 0;
-                                orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                               // orderPayment.TransactionModeNumber = dto.transactionModeNumber;
                             }
                             else if (dto.TransactionMode.ToLower() == "debitCard")
                             {
                                 orderPayment.TransactionModeId = 1;
-                                orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                            //    orderPayment.TransactionModeNumber = dto.transactionModeNumber;
                             }
                             else if (dto.TransactionMode.ToLower() == "cheque")
                             {
                                 orderPayment.TransactionModeId = 2;
-                                orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                              //  orderPayment.TransactionModeNumber = dto.transactionModeNumber;
                             }
                             else if (dto.TransactionMode.ToLower() == "cash")
                             {
                                 orderPayment.TransactionModeId = 3;
-                                orderPayment.TransactionModeNumber = "";
+                                //orderPayment.TransactionModeNumber = "";
                             }
                             else
                             {
@@ -97,8 +97,12 @@ namespace AccountsReceivable.API.Services
                                 throw new Exception("Customer is not select Transaction Mode.");
                             }
                             // OrderpaymentDataInserted = true;
-                            orderPayment = new OrderPayment();
+                            // orderPayment = new OrderPayment();
                             OrderPayment orderPaymentData = _mapper.Map<OrderPaymentRequest, OrderPayment>(dto);
+                            orderPaymentData.CustomerId = dto.CustomerId;
+                            orderPaymentData.CreatedBy = dto.CustomerId;
+                            orderPaymentData.CreatedDate = DateTime.UtcNow;
+                            orderPaymentData.TransactionModeId = orderPayment.TransactionModeId;
                             _context.OrderPayment.Add(orderPaymentData);
                             // _context.Entry(orderPayment).CurrentValues.SetValues(dto);
                             int id = await _context.SaveChangesAsync();
@@ -110,6 +114,8 @@ namespace AccountsReceivable.API.Services
                                 customerWalletTransaction.TransactionAmount = dto.Amount;
                                 customerWalletTransaction.CreatedDate = DateTime.UtcNow;
                                 customerWalletTransaction.CreatedBy = dto.CustomerId;
+                                customerWalletTransaction.CardNumber = dto.transactionModeNumber;
+                                customerWalletTransaction.TransactionModeId = orderPayment.TransactionModeId;
                                 customerWalletTransaction.CustomerId = dto.CustomerId;
                                 customerWalletTransaction.TransactionType = "OrderPayment";
                                 _context.CustomerWalletTransaction.Add(customerWalletTransaction);
@@ -151,12 +157,14 @@ namespace AccountsReceivable.API.Services
                         // var OrderpaymentDataInserted = false;
                         CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
 
-                        OrderPayment orderPayment = await _context.OrderPayment.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
+                        OrderPayment orderPayment = new OrderPayment();
                         if (customerWallet != null)
                         {
                            // OrderpaymentDataInserted = true;
-                            orderPayment = new OrderPayment();
+                            //orderPayment = new OrderPayment();
                             OrderPayment orderPaymentData = _mapper.Map<OrderWithOutPaymentRequest, OrderPayment>(dto);
+                            orderPaymentData.CreatedBy = dto.CustomerId;
+                            orderPaymentData.CreatedDate = DateTime.UtcNow;
                             _context.OrderPayment.Add(orderPaymentData);
                             int id = await _context.SaveChangesAsync();
                             if (id > 0 && dto.CustomerId != null)
