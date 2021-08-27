@@ -46,18 +46,6 @@ namespace AccountsReceivable.API.Services
                 {
                     customerWalletInformations = (List<CustomerWalletInfo>)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(dataTable), typeof(List<CustomerWalletInfo>));
                 }
-
-                //var sql = await _context.Query<CustomerWalletInfo>.AsNoTracking().FromSqlRaw(StoredProc).ToListAsync();
-                //if (lstCustomerWallet != null && lstCustomerWallet.Count > 0)
-                //{
-                //    foreach (CustomerWallet item in lstCustomerWallet)
-                //    {
-
-                //        customerWalletInformations.Add(new CustomerWalletInfo { TotalBusinessAmount = item.TotalBusinessAmount, TotalPaidAmount = item.TotalPaidAmount, DueAmount = item.DueAmount, OrderId = item. });
-                //        return await _context.output.FromSqlRaw(StoredProc).ToListAsync();
-                //    }
-
-                //}
             }
             catch (Exception ex)
             {
