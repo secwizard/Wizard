@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Models;
+﻿using AccountsReceivable.API.Helpers;
+using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
@@ -20,16 +21,11 @@ namespace AccountsReceivable.API.Controllers
             _updateTransactionService = updateTransactionService;
         }
         [HttpPost]
-        public async Task<IActionResult> CustomerDepositAmount(UpdateTransaction updateTransaction)
+        public async Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction updateTransaction)
         {
-            try
-            {
-                return Ok(await _updateTransactionService.CustomerDepositAmount(updateTransaction));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+           
+                return await _updateTransactionService.CustomerDepositAmount(updateTransaction);
+          
         }
         [HttpPost]
         public async Task<IActionResult> OrderWithPayment(OrderPaymentRequest orderPaymentVM)
@@ -40,7 +36,7 @@ namespace AccountsReceivable.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                throw ex;
             }
         }
         [HttpPost]

@@ -8,7 +8,7 @@ namespace AccountsReceivable.API.Models.RequestModel
     public class OrderWithOutPaymentRequest
     {
         public string OrderId { get; set; }
-        public int? Amount { get; set; }
+        public int? OrderAmount { get; set; }
         public int? CustomerId { get; set; }
     }
 }
