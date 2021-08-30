@@ -85,6 +85,7 @@ namespace AccountsReceivable.API.Services
                                     CustomerWalletOld.CreatedDate = CustomerWallet.CreatedDate;
                                     CustomerWalletOld.ModifiedBy = CustomerWallet.ModifiedBy;
                                     CustomerWalletOld.ModifiedDate = CustomerWallet.ModifiedDate;
+                                    CustomerWalletOld.CustomerId = CustomerWallet.CustomerId;
                                     _context.Entry(CustomerWallet).CurrentValues.SetValues(CustomerWalletOld);
                                     await _context.SaveChangesAsync();
                                     CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
@@ -92,6 +93,7 @@ namespace AccountsReceivable.API.Services
                                     customerWalletTransaction.TransactionAmount = CustomerWallet.TotalBusinessAmount * dto.CashBackPercentage / 100;
                                     customerWalletTransaction.TransactionType = "CashbackDeposit";
                                     customerWalletTransaction.TransactionModeId = 4;
+                                    customerWalletTransaction.CreatedDate = DateTime.UtcNow;
                                     customerWalletTransaction.CustomerId = dto.CustomerId;
                                     _context.CustomerWalletTransaction.Add(customerWalletTransaction);
                                     await _context.SaveChangesAsync();
@@ -100,6 +102,7 @@ namespace AccountsReceivable.API.Services
                                     CustoWalleTransacDetail.ReferenceTable = "CashbackTransaction";
                                     CustoWalleTransacDetail.ReferenceId = cashbacktransaction.CashBackTransactionId.ToString();
                                     CustoWalleTransacDetail.Amount = CustomerWallet.TotalBusinessAmount * dto.CashBackPercentage / 100;
+                                    CustoWalleTransacDetail.CreatedDate = DateTime.UtcNow;
                                     CustoWalleTransacDetail.CustomerId = dto.CustomerId;
                                     _context.CustomerWalletTransactionDetail.Add(CustoWalleTransacDetail);
                                     await _context.SaveChangesAsync();

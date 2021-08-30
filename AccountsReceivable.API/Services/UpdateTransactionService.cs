@@ -102,6 +102,7 @@ namespace AccountsReceivable.API.Services
                             orderPaymentData.CustomerId = dto.CustomerId;
                             orderPaymentData.CreatedBy = dto.CustomerId;
                             orderPaymentData.CreatedDate = DateTime.UtcNow;
+                            orderPaymentData.CustomerWalletId = customerWallet.CustomerWalletId;
                             orderPaymentData.TransactionModeId = orderPayment.TransactionModeId;
                             _context.OrderPayment.Add(orderPaymentData);
                             // _context.Entry(orderPayment).CurrentValues.SetValues(dto);
@@ -164,7 +165,9 @@ namespace AccountsReceivable.API.Services
                             //orderPayment = new OrderPayment();
                             OrderPayment orderPaymentData = _mapper.Map<OrderWithOutPaymentRequest, OrderPayment>(dto);
                             orderPaymentData.CreatedBy = dto.CustomerId;
+                            orderPaymentData.CustomerId = dto.CustomerId;
                             orderPaymentData.CreatedDate = DateTime.UtcNow;
+                            orderPaymentData.CustomerWalletId = customerWallet.CustomerWalletId;
                             _context.OrderPayment.Add(orderPaymentData);
                             int id = await _context.SaveChangesAsync();
                             if (id > 0 && dto.CustomerId != null)
@@ -172,6 +175,7 @@ namespace AccountsReceivable.API.Services
                                 CustomerWalletTransactionDetail CustTranDetails = new CustomerWalletTransactionDetail();
                                 CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
                                 customerWalletTransaction.CustomerWalletId = orderPayment.CustomerWalletId;
+                                customerWalletTransaction.CustomerId = dto.CustomerId;
                                 customerWalletTransaction.TransactionAmount = dto.Amount;
                                 customerWalletTransaction.CreatedDate = DateTime.UtcNow;
                                 customerWalletTransaction.CreatedBy = dto.CustomerId;
@@ -181,6 +185,8 @@ namespace AccountsReceivable.API.Services
                                 CustTranDetails.Amount = dto.Amount;
                                 CustTranDetails.CreatedDate = DateTime.UtcNow;
                                 CustTranDetails.CreatedBy = dto.CustomerId;
+                                CustTranDetails.CustomerWalletTransactionId = customerWalletTransaction.CustomerWalletTransactionId;
+                                CustTranDetails.CustomerId = dto.CustomerId;
                                 _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
                                 await _context.SaveChangesAsync();
                                 await transaction.CommitAsync();//Execute when both tables data will inserted.
