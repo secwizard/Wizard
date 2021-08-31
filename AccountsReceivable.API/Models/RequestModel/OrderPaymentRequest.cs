@@ -8,7 +8,7 @@ namespace AccountsReceivable.API.Models.RequestModel
     public class OrderPaymentRequest
     {
         public string OrderId { get; set; }
-        public int? Amount { get; set; }
+        public int? OrderAmount { get; set; }
         public string TransactionMode { get; set; }
         public string transactionModeNumber { get; set; }
 

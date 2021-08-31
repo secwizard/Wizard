@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Models;
+﻿using AccountsReceivable.API.Helpers;
+using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.ViewModels;
 using System;
@@ -10,8 +11,8 @@ namespace AccountsReceivable.API.Services.Interface
 {
     public interface IUpdateTransactionService
     {
-        Task<UpdateTransaction> CustomerDepositAmount(UpdateTransaction dto);
-        Task<OrderPaymentRequest> OrderWithPayment(OrderPaymentRequest dto);
-        Task<OrderWithOutPaymentRequest> OrderWithOutPayment(OrderWithOutPaymentRequest dto);
+        Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction dto);
+        Task<Response<OrderPaymentRequest>> OrderWithPayment(OrderPaymentRequest dto);
+        Task<Response<OrderWithOutPaymentRequest>> OrderWithOutPayment(OrderWithOutPaymentRequest dto);
     }
 }

@@ -17,6 +17,7 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<UpdateTransaction, CustomerWallet>().ReverseMap();
             CreateMap<OrderPaymentRequest, CustomerWallet>().ReverseMap();
             CreateMap<OrderWithOutPaymentRequest, CustomerWallet>().ReverseMap();
+            CreateMap<OrderWithOutPaymentRequest, OrderPayment>().ReverseMap();
         }
     }
 }
