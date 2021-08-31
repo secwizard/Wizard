@@ -3,12 +3,11 @@ using AccountsReceivable.API.Helpers;
 using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
-using AccountsReceivable.API.ViewModels;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -26,74 +25,75 @@ namespace AccountsReceivable.API.Services
         public async Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction dto)
         {
             Response<UpdateTransaction> responseobj = new Response<UpdateTransaction>();
-
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                try
+                if (dto != null)
                 {
-                    if (dto != null)
+                    CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
+                    string RequestStatus = string.Empty;
+                    SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
+
+                    SqlDataAdapter adapter;
+                    DataSet ds = new DataSet();
+                    if (conn.State == ConnectionState.Closed)
                     {
-                        CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
-                        // bool isNewCustomerWallet = false;
-                        CustomerWallet customerWalletData = _mapper.Map<UpdateTransaction, CustomerWallet>(dto);
-                        if (customerWallet != null)
+                        conn.Open();
+                    }
+
+                    SqlCommand cmd = new SqlCommand("CustomerDepositAmount", conn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
+                    cmd.Parameters.AddWithValue("@Amount", dto.Amount);
+
+                    await cmd.ExecuteNonQueryAsync();
+
+                    adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(ds);
+
+                    for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
+                    {
+                        if (i == 0)
                         {
-                            customerWallet.ModifiedDate = DateTime.Now;
-                            customerWallet.ModifiedBy = dto.CustomerId;
-                            customerWallet.CreditLimit = dto.Amount;
-                            _context.Entry(customerWallet).CurrentValues.SetValues(dto);
-                            CustomerWalletTransaction CWalletTransaction = new CustomerWalletTransaction();
-                            CWalletTransaction.ModifiedDate = DateTime.Now;
-                            CWalletTransaction.ModifiedBy = dto.CustomerId;
-                            CWalletTransaction.TransactionAmount = dto.Amount;
-                            CWalletTransaction.TransactionType = "Deposit";
-                            CWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
-                            _context.CustomerWalletTransaction.Add(CWalletTransaction);
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync(); //Execute when both tables data will inserted.
+                            RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                            break;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(RequestStatus))
+                    {
+                        if (RequestStatus.ToLower().Contains("successfully"))
+                        {
                             responseobj.Data = dto;
                             responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = "Customer Wallet updated succesfully.";
+                            responseobj.Status.Message = customerWallet != null ? "Customer Wallet updated succesfully." : "Customer Wallet created succesfully.";
                             responseobj.Status.Response = "Success";
                         }
                         else
                         {
-                            customerWallet = new CustomerWallet();
-                            customerWallet.CreatedDate = DateTime.Now;
-                            customerWallet.CreatedBy = dto.CustomerId;
-                            customerWallet.CustomerId = dto.CustomerId;
-                            customerWallet.CreditLimit = dto.Amount;
-                            _context.CustomerWallet.Add(customerWallet);
-                            CustomerWalletTransaction CWalletTransaction = new CustomerWalletTransaction();
-                            CWalletTransaction.ModifiedDate = DateTime.Now;
-                            CWalletTransaction.ModifiedBy = dto.CustomerId;
-                            CWalletTransaction.TransactionAmount = dto.Amount;
-                            CWalletTransaction.TransactionType = "Deposit";
-                            CWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
-                            _context.CustomerWalletTransaction.Add(CWalletTransaction);
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync(); //Execute when both tables data will inserted.
-                            responseobj.Data = dto;
-                            responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = "Customer Wallet Create Succefully.";
-                            responseobj.Status.Response = "Success";
+                            responseobj.Data = null;
+                            responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                            responseobj.Status.Message = RequestStatus;
+                            responseobj.Status.Response = "failed";
                         }
                     }
-                    else {
-                        responseobj.Data = null;
-                        responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                        responseobj.Status.Message = "Invalid request";
-                        responseobj.Status.Response = "failed";
-                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    
-                    await transaction.RollbackAsync();
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Invalid request";
+                    responseobj.Status.Response = "failed";
                 }
-                return responseobj;
-
             }
+            catch (Exception)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                responseobj.Status.Message = "Invalid request";
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+
         }
         public async Task<Response<OrderPaymentRequest>> OrderWithPayment(OrderPaymentRequest dto)
         {
@@ -104,90 +104,100 @@ namespace AccountsReceivable.API.Services
                 {
                     if (dto != null)
                     {
-                        CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
-                        OrderPayment orderPayment = new OrderPayment();
-                        if (customerWallet != null)
+                        string RequestStatus = string.Empty;
+                        string TransactionModeId = string.Empty;
+                        SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
+
+                        SqlDataAdapter adapter;
+                        DataSet ds = new DataSet();
+                        if (conn.State == ConnectionState.Closed)
                         {
-                            if (dto.TransactionMode.ToLower() == "creditcard")
-                            {
-                                orderPayment.TransactionModeId = 0;
-                                // orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                            }
-                            else if (dto.TransactionMode.ToLower() == "debitcard")
-                            {
-                                orderPayment.TransactionModeId = 1;
-                                //    orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                            }
-                            else if (dto.TransactionMode.ToLower() == "cheque")
-                            {
-                                orderPayment.TransactionModeId = 2;
-                                //  orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                            }
-                            else if (dto.TransactionMode.ToLower() == "cash")
-                            {
-                                orderPayment.TransactionModeId = 3;
-                                //orderPayment.TransactionModeNumber = "";
-                            }
-                            else
-                            {
-                                //  transaction.Rollback();
-                                responseobj.Data = null;
-                                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                                responseobj.Status.Message = "Customer is not select Transaction Mode.";
-                                responseobj.Status.Response = "Failed";
-                                //throw new Exception("Customer is not select Transaction Mode.");
-                            }
-                            // OrderpaymentDataInserted = true;
-                            // orderPayment = new OrderPayment();
-                            OrderPayment orderPaymentData = _mapper.Map<OrderPaymentRequest, OrderPayment>(dto);
-                            orderPaymentData.CustomerId = dto.CustomerId;
-                            orderPaymentData.CreatedBy = dto.CustomerId;
-                            orderPaymentData.CreatedDate = DateTime.Now;
-                            orderPaymentData.CustomerWalletId = customerWallet.CustomerWalletId;
-                            orderPaymentData.Amount = dto.OrderAmount;
-                            orderPaymentData.TransactionModeId = orderPayment.TransactionModeId;
-                            _context.OrderPayment.Add(orderPaymentData);
-                            // _context.Entry(orderPayment).CurrentValues.SetValues(dto);
-                            int id = await _context.SaveChangesAsync();
-                            if (id > 0 && dto.TransactionMode != null)
-                            {
-                               
-                                CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
-                                customerWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
-                                customerWalletTransaction.TransactionAmount = dto.OrderAmount;
-                                customerWalletTransaction.CreatedDate = DateTime.Now;
-                                customerWalletTransaction.CreatedBy = dto.CustomerId;
-                                customerWalletTransaction.CardNumber = dto.transactionModeNumber;
-                                customerWalletTransaction.TransactionModeId = orderPayment.TransactionModeId;
-                                customerWalletTransaction.CustomerId = dto.CustomerId;
-                                customerWalletTransaction.TransactionType = "OrderPayment";
-                                _context.CustomerWalletTransaction.Add(customerWalletTransaction);
-                                await _context.SaveChangesAsync();
+                            conn.Open();
+                        }
 
-                                CustomerWalletTransactionDetail CustTranDetails = new CustomerWalletTransactionDetail();
-                                CustTranDetails.ReferenceId = dto.OrderId;
-                                CustTranDetails.Amount = Convert.ToInt32("-" + dto.OrderAmount);
-                                CustTranDetails.CreatedDate = DateTime.Now;
-                                CustTranDetails.CustomerId = dto.CustomerId;
-                                CustTranDetails.CreatedBy = dto.CustomerId;
-                                CustTranDetails.CustomerWalletTransactionId = customerWalletTransaction.CustomerWalletTransactionId;
-                                _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
-                            }
-
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync();//Execute when both tables data will inserted.
-                            responseobj.Data = dto;
-                            responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = "Order Successfully Placed";
-                            responseobj.Status.Response = "Success";
+                        SqlCommand cmd = new SqlCommand("sp_OrderWithPayment", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@OrderId", dto.OrderId);
+                        cmd.Parameters.AddWithValue("@OrderAmount", dto.OrderAmount);
+                        if (dto.TransactionMode.ToLower() == "creditcard")
+                        {
+                            TransactionModeId = 0.ToString();
+                            // orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                        }
+                        else if (dto.TransactionMode.ToLower() == "debitcard")
+                        {
+                            TransactionModeId = 1.ToString(); 
+                            //    orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                        }
+                        else if (dto.TransactionMode.ToLower() == "cheque")
+                        {
+                            TransactionModeId = 2.ToString();
+                            //  orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                        }
+                        else if (dto.TransactionMode.ToLower() == "cash")
+                        {
+                            TransactionModeId = 3.ToString();
+                            //orderPayment.TransactionModeNumber = "";
                         }
                         else
                         {
+                            //  transaction.Rollback();
                             responseobj.Data = null;
                             responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                            responseobj.Status.Message = "Customer is not exists.";
+                            responseobj.Status.Message = "Customer is not select Transaction Mode.";
                             responseobj.Status.Response = "Failed";
+                            //throw new Exception("Customer is not select Transaction Mode.");
                         }
+                        cmd.Parameters.AddWithValue("@TransactionMode", TransactionModeId);
+                        cmd.Parameters.AddWithValue("@transactionModeNumber", dto.transactionModeNumber);
+                        cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
+
+                        await cmd.ExecuteNonQueryAsync();
+
+                        adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(ds);
+
+                        for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
+                        {
+                            if (i == 0)
+                            {
+                                RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                if (RequestStatus.ToLower().Contains("successfully"))
+                                {
+                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                    responseobj.Data = dto;
+                                    responseobj.Status.Code = (int)HttpStatusCode.OK;
+                                    responseobj.Status.Message = RequestStatus;
+                                    responseobj.Status.Response = "Success";
+                                    break;
+                                }
+                                else {
+                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                    responseobj.Data = null;
+                                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                                    responseobj.Status.Message = RequestStatus;
+                                    responseobj.Status.Response = "FAILED";
+                                }
+                            }
+                        }
+
+                        //if (!string.IsNullOrEmpty(RequestStatus))
+                        //{
+                        //    if (RequestStatus.ToLower().Contains("successfully"))
+                        //    {
+                        //        responseobj.Data = dto;
+                        //        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        //        responseobj.Status.Message = customerWallet != null ? "Customer Wallet updated succesfully." : "Customer Wallet created succesfully.";
+                        //        responseobj.Status.Response = "Success";
+                        //    }
+                        //    else
+                        //    {
+                        //        responseobj.Data = null;
+                        //        responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                        //        responseobj.Status.Message = RequestStatus;
+                        //        responseobj.Status.Response = "failed";
+                        //    }
+                        //}
                     }
                     else
                     {
@@ -214,63 +224,62 @@ namespace AccountsReceivable.API.Services
                 {
                     if (dto != null)
                     {
-                        // var OrderpaymentDataInserted = false;
-                        CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
+                        string RequestStatus = string.Empty;
+                        string TransactionModeId = string.Empty;
+                        SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
 
-                        OrderPayment orderPayment = new OrderPayment();
-                        if (customerWallet != null)
+                        SqlDataAdapter adapter;
+                        DataSet ds = new DataSet();
+                        if (conn.State == ConnectionState.Closed)
                         {
-                            // OrderpaymentDataInserted = true;
-                            //orderPayment = new OrderPayment();
-                            OrderPayment orderPaymentData = _mapper.Map<OrderWithOutPaymentRequest, OrderPayment>(dto);
-                            orderPaymentData.CreatedBy = dto.CustomerId;
-                            orderPaymentData.CustomerId = dto.CustomerId;
-                            orderPaymentData.CreatedDate = DateTime.Now; 
-                            orderPaymentData.CustomerWalletId = customerWallet.CustomerWalletId;
-                            _context.OrderPayment.Add(orderPaymentData);
-                            int id = await _context.SaveChangesAsync();
-                            if (id > 0 && dto.CustomerId != null)
+                            conn.Open();
+                        }
+
+                        SqlCommand cmd = new SqlCommand("sp_OrderWithOutPayment", conn);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@OrderId", dto.OrderId);
+                        cmd.Parameters.AddWithValue("@OrderAmount", dto.OrderAmount);
+                        cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
+
+                        await cmd.ExecuteNonQueryAsync();
+
+                        adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(ds);
+
+                        for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
+                        {
+                            if (i == 0)
                             {
-                                CustomerWalletTransactionDetail CustTranDetails = new CustomerWalletTransactionDetail();
-                                CustomerWalletTransaction customerWalletTransaction = new CustomerWalletTransaction();
-                                customerWalletTransaction.CustomerWalletId = customerWallet.CustomerWalletId;
-                                customerWalletTransaction.CustomerId = dto.CustomerId;
-                                customerWalletTransaction.TransactionAmount = dto.OrderAmount;
-                                customerWalletTransaction.CreatedDate = DateTime.Now;
-                                customerWalletTransaction.CreatedBy = dto.CustomerId;
-                                customerWalletTransaction.TransactionType = "Order";
-                                _context.CustomerWalletTransaction.Add(customerWalletTransaction);
-                                await _context.SaveChangesAsync();
-                                CustTranDetails.ReferenceId = dto.OrderId;
-                                CustTranDetails.Amount = dto.OrderAmount;
-                                CustTranDetails.CreatedDate = DateTime.Now;
-                                CustTranDetails.CreatedBy = dto.CustomerId;
-                                CustTranDetails.CustomerWalletTransactionId = customerWalletTransaction.CustomerWalletTransactionId;
-                                CustTranDetails.CustomerId = dto.CustomerId;
-                                _context.CustomerWalletTransactionDetail.Add(CustTranDetails);
+                                RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                if (RequestStatus.ToLower().Contains("successfully"))
+                                {
+                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                    responseobj.Data = dto;
+                                    responseobj.Status.Code = (int)HttpStatusCode.OK;
+                                    responseobj.Status.Message = RequestStatus;
+                                    responseobj.Status.Response = "Success";
+                                    break;
+                                }
+                                else
+                                {
+                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
+                                    responseobj.Data = null;
+                                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                                    responseobj.Status.Message = RequestStatus;
+                                    responseobj.Status.Response = "FAILED";
+                                }
                             }
-                            await _context.SaveChangesAsync();
-                            await transaction.CommitAsync();//Execute when both tables data will inserted.
-                            responseobj.Data = dto;
-                            responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = "Order Successfully Placed";
-                            responseobj.Status.Response = "Success";
                         }
-                        else
-                        {
-                            responseobj.Data = null;
-                            responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                            responseobj.Status.Message = "Customer is not exists.";
-                            responseobj.Status.Response = "Failed";
-                        }
-                     
+                        // var OrderpaymentDataInserted = false;
+                        
+
                     }
                     else
                     {
                         responseobj.Data = null;
                         responseobj.Status.Code = (int)HttpStatusCode.NotFound;
                         responseobj.Status.Message = "Invalid request";
-                        responseobj.Status.Response = "failed";
+                        responseobj.Status.Response = "FAILED";
                     }
                 }
                 catch (Exception ex)
@@ -278,7 +287,7 @@ namespace AccountsReceivable.API.Services
                     responseobj.Data = null;
                     responseobj.Status.Code = (int)HttpStatusCode.NotFound;
                     responseobj.Status.Message = ex.ToString();
-                    responseobj.Status.Response = "failed";
+                    responseobj.Status.Response = "FAILED";
                     await transaction.RollbackAsync();
                 }
                 return responseobj;
