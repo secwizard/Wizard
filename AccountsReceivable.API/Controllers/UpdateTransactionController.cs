@@ -23,9 +23,7 @@ namespace AccountsReceivable.API.Controllers
         [HttpPost]
         public async Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction updateTransaction)
         {
-           
-                return await _updateTransactionService.CustomerDepositAmount(updateTransaction);
-          
+            return await _updateTransactionService.CustomerDepositAmount(updateTransaction);
         }
         [HttpPost]
         public async Task<IActionResult> OrderWithPayment(OrderPaymentRequest orderPaymentVM)
