@@ -1,12 +1,8 @@
 ﻿using AccountsReceivable.API.Helpers;
-using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
-using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AccountsReceivable.API.Controllers

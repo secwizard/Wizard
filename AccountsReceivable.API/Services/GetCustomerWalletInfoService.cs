@@ -4,15 +4,11 @@ using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Services.Interface;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Threading.Tasks;
-
 namespace AccountsReceivable.API.Services
 {
     public class GetCustomerWalletInfoService : IGetCustomerWalletInfoService
@@ -28,31 +24,23 @@ namespace AccountsReceivable.API.Services
         {
             Response<List<CustomerWalletInfo>> responseobj = new Response<List<CustomerWalletInfo>>();
 
-            List<CustomerWalletInfo> customerWalletInformations = new List<CustomerWalletInfo>();
-
             try
             {
-                SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
-                SqlDataReader rdr = null;
-                await conn.OpenAsync();
+                var parmsList = new SqlParameter[] {
+                    new SqlParameter("@customerId",customerid),
+                };
+                string sqlTextList = $"EXECUTE dbo.GetCustomerWalletInfo @customerId";
+                List<CustomerWalletInfo> response = await _context.CustomerWalletInfo.FromSqlRaw(sqlTextList, parmsList).ToListAsync();
 
-                SqlCommand cmd = new SqlCommand("GetCustomerWalletInfo", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.Add(new SqlParameter("@customerId", customerid));
-
-                rdr = await cmd.ExecuteReaderAsync();
-
-                var dataTable = new DataTable();
-                dataTable.Load(rdr);
-                if (dataTable.Rows.Count > 0)
+                if (response != null && response.Count > 0)
                 {
-                    customerWalletInformations = (List<CustomerWalletInfo>)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(dataTable), typeof(List<CustomerWalletInfo>));
-                    responseobj.Data = customerWalletInformations;
+                    responseobj.Data = response;
                     responseobj.Status.Code = (int)HttpStatusCode.OK;
                     responseobj.Status.Message = "Get successfully Information of customer wallet";
                     responseobj.Status.Response = "Success";
                 }
-                else {
+                else
+                {
                     responseobj.Data = null;
                     responseobj.Status.Code = (int)HttpStatusCode.NotFound;
                     responseobj.Status.Message = "Customer is not exists.";
@@ -62,8 +50,8 @@ namespace AccountsReceivable.API.Services
             catch (Exception ex)
             {
                 responseobj.Data = null;
-                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                responseobj.Status.Message = ex.ToString();
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
                 responseobj.Status.Response = "Failed";
             }
             return responseobj;
