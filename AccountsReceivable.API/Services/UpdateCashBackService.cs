@@ -30,14 +30,20 @@ namespace AccountsReceivable.API.Services
                 {
                     if (dto != null)
                     {
-                        if (dto.CustomerId != null)
+                        if (dto.CompanyId != null)
                         {
                             string CashBackForCustomerResult = string.Empty;
-                            var CustomerIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CustomerId", dto.CustomerId);
-                            var CashBackPercentageSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CashBackPercentage", dto.CashBackPercentage);
+                            var CompanyId = new Microsoft.Data.SqlClient.SqlParameter("@CompanyId", dto.CompanyId);
+                            var MinimumBusinessAmount = new Microsoft.Data.SqlClient.SqlParameter("@MinimumBusinessAmount", dto.MinimumBusinessAmount);
+                            var MaximumCashbackAmount = new Microsoft.Data.SqlClient.SqlParameter("@MaximumCashbackAmount", dto.MaximumCashbackAmount);
+                            var StartDate = new Microsoft.Data.SqlClient.SqlParameter("@StartDate", dto.StartDate.ToString());
+                            var EndDate = new Microsoft.Data.SqlClient.SqlParameter("@EndDate", dto.EndDate.ToString());
+                            var CashbackValue = new Microsoft.Data.SqlClient.SqlParameter("@CashbackValue", dto.CashbackValue);
+                            var IsPercentage = new Microsoft.Data.SqlClient.SqlParameter("@IsPercentage", dto.IsPercentage);
+                            var IsActive = new Microsoft.Data.SqlClient.SqlParameter("@IsActive", dto.IsActive);
 
                             var CashBackForCustomerResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CashBackForCustomerResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
-                            await _context.Database.ExecuteSqlRawAsync("exec dbo.AddCashBackForCustomer @CustomerId={0},@CashBackPercentage={1},@CashBackForCustomerResult={2} out", CustomerIdSQLParam, CashBackForCustomerResult, CashBackForCustomerResultSQLParam);
+                            await _context.Database.ExecuteSqlRawAsync("exec dbo.AddCashBack @CompanyId={0},@MinimumBusinessAmount={1},@MaximumCashbackAmount={2},@StartDate={3},@EndDate={4},@CashbackValue={5},@IsPercentage={6},@IsActive={7},@CashBackForCustomerResult={8} out", CompanyId, MinimumBusinessAmount, MaximumCashbackAmount, StartDate, EndDate, CashbackValue, IsPercentage, IsActive, CashBackForCustomerResultSQLParam);
 
                             if (CashBackForCustomerResultSQLParam.Value != DBNull.Value)
                             {
@@ -78,10 +84,23 @@ namespace AccountsReceivable.API.Services
                     responseobj.Status.Message = ex.ToString();
                     responseobj.Status.Response = "failed";
                     await transaction.RollbackAsync();
-                   // throw new Exception(ex.Message.ToString());
+                    // throw new Exception(ex.Message.ToString());
                 }
                 return responseobj;
             }
         }
+        //public async Task<Response<CashbackDetail>> GetCashbackDetails(CashbackDetail dto)
+        //{
+        //    Response<CashbackMasterRequest> responseobj = new Response<CashbackMasterRequest>();
+
+        //    using (var transaction = _context.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+
+        //        }
+        //    }
+        //}
     }
+
 }
