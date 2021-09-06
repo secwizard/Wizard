@@ -6,6 +6,7 @@ namespace AccountsReceivable.API.Data
     {
         public AccountReceivableDataContext(DbContextOptions<AccountReceivableDataContext> options) : base(options)
         {
+            Database.SetCommandTimeout(9000);
         }
         public DbSet<CustomerWallet> CustomerWallet { get; set; }
         public DbSet<CustomerWalletTransaction> CustomerWalletTransaction { get; set; }

@@ -27,5 +27,17 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> GetCashbackDetails(CashbackDetail cashbackDetails)
+        {
+            try
+            {
+                return Ok(await _updateCashBackService.GetCashbackDetails(cashbackDetails));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

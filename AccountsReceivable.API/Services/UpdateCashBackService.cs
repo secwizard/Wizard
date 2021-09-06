@@ -89,18 +89,68 @@ namespace AccountsReceivable.API.Services
                 return responseobj;
             }
         }
-        //public async Task<Response<CashbackDetail>> GetCashbackDetails(CashbackDetail dto)
-        //{
-        //    Response<CashbackMasterRequest> responseobj = new Response<CashbackMasterRequest>();
+        public async Task<Response<CashbackDetail>> GetCashbackDetails(CashbackDetail dto)
+        {
+            Response<CashbackDetail> responseobj = new Response<CashbackDetail>();
 
-        //    using (var transaction = _context.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
 
-        //        }
-        //    }
-        //}
+            try
+            {
+                if (dto != null)
+                {
+                    if (dto.CompanyId != null)
+                    {
+                        string CashBackForCustomerResult = string.Empty;
+                        var CompanyId = new Microsoft.Data.SqlClient.SqlParameter("@CompanyId", dto.CompanyId.Value);
+                        var StartDate = new Microsoft.Data.SqlClient.SqlParameter("@StartDate", dto.StartDate.ToString());
+                        var EndDate = new Microsoft.Data.SqlClient.SqlParameter("@EndDate", dto.EndDate.ToString());
+                        
+                        var GetCashbackResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@GetCashbackResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
+                        await _context.Database.ExecuteSqlRawAsync("exec dbo.GetCashbackDetails @CompanyId={0},@StartDate={1},@EndDate={2},@GetCashbackResult={3} OUTPUT", CompanyId, StartDate, EndDate, GetCashbackResultSQLParam);
+
+                        if (GetCashbackResultSQLParam.Value != DBNull.Value)
+                        {
+                            CashBackForCustomerResult = (string)GetCashbackResultSQLParam.Value;
+                        }
+
+                        if (!string.IsNullOrEmpty(CashBackForCustomerResult))
+                        {
+                            if (CashBackForCustomerResult.ToLower().Contains("successfully"))
+                            {
+                                responseobj.Data = dto;
+                                responseobj.Status.Code = (int)HttpStatusCode.OK;
+                                responseobj.Status.Message = CashBackForCustomerResult;
+                                responseobj.Status.Response = "Success";
+                            }
+                            else
+                            {
+                                responseobj.Data = null;
+                                responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                                responseobj.Status.Message = CashBackForCustomerResult;
+                                responseobj.Status.Response = "failed";
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Invalid request";
+                    responseobj.Status.Response = "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                responseobj.Status.Message = ex.ToString();
+                responseobj.Status.Response = "failed";
+                // throw new Exception(ex.Message.ToString());
+            }
+            return responseobj;
+
+        }
     }
 
 }
