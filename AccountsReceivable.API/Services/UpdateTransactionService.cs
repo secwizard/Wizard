@@ -7,7 +7,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -29,50 +28,32 @@ namespace AccountsReceivable.API.Services
             {
                 if (dto != null)
                 {
-                    CustomerWallet customerWallet = await _context.CustomerWallet.FirstOrDefaultAsync(x => x.CustomerId == dto.CustomerId);
-                    string RequestStatus = string.Empty;
-                    SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
+                    string DispositResult = string.Empty;
+                    var CustomerIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CustomerId", dto.CustomerId);
+                    var amountSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@Amount", dto.Amount);
 
-                    SqlDataAdapter adapter;
-                    DataSet ds = new DataSet();
-                    if (conn.State == ConnectionState.Closed)
+                    var DispositResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@DispositResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
+                    await _context.Database.ExecuteSqlRawAsync("exec dbo.CustomerDepositAmount @CustomerId={0},@Amount={1},@DispositResult={2} out", CustomerIdSQLParam, amountSQLParam, DispositResultSQLParam);
+
+                    if (DispositResultSQLParam.Value != DBNull.Value)
                     {
-                        conn.Open();
+                        DispositResult = (string)DispositResultSQLParam.Value;
                     }
 
-                    SqlCommand cmd = new SqlCommand("CustomerDepositAmount", conn);
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
-                    cmd.Parameters.AddWithValue("@Amount", dto.Amount);
-
-                    await cmd.ExecuteNonQueryAsync();
-
-                    adapter = new SqlDataAdapter(cmd);
-                    adapter.Fill(ds);
-
-                    for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
+                    if (!string.IsNullOrEmpty(DispositResult))
                     {
-                        if (i == 0)
-                        {
-                            RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                            break;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(RequestStatus))
-                    {
-                        if (RequestStatus.ToLower().Contains("successfully"))
+                        if (DispositResult.ToLower().Contains("successfully"))
                         {
                             responseobj.Data = dto;
                             responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = customerWallet != null ? "Customer Wallet updated succesfully." : "Customer Wallet created succesfully.";
+                            responseobj.Status.Message = DispositResult;
                             responseobj.Status.Response = "Success";
                         }
                         else
                         {
                             responseobj.Data = null;
                             responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
-                            responseobj.Status.Message = RequestStatus;
+                            responseobj.Status.Message = DispositResult;
                             responseobj.Status.Response = "failed";
                         }
                     }
@@ -85,11 +66,11 @@ namespace AccountsReceivable.API.Services
                     responseobj.Status.Response = "failed";
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 responseobj.Data = null;
-                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                responseobj.Status.Message = "Invalid request";
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
                 responseobj.Status.Response = "failed";
             }
             return responseobj;
@@ -98,200 +79,150 @@ namespace AccountsReceivable.API.Services
         public async Task<Response<OrderPaymentRequest>> OrderWithPayment(OrderPaymentRequest dto)
         {
             Response<OrderPaymentRequest> responseobj = new Response<OrderPaymentRequest>();
-            using (var transaction = _context.Database.BeginTransaction())
+            try
             {
-                try
+                if (dto != null)
                 {
-                    if (dto != null)
+                    string RequestStatus = string.Empty;
+                    string TransactionModeId = string.Empty;
+                    if (dto.TransactionMode.ToLower() == "creditcard")
                     {
-                        string RequestStatus = string.Empty;
-                        string TransactionModeId = string.Empty;
-                        SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
-
-                        SqlDataAdapter adapter;
-                        DataSet ds = new DataSet();
-                        if (conn.State == ConnectionState.Closed)
-                        {
-                            conn.Open();
-                        }
-
-                        SqlCommand cmd = new SqlCommand("sp_OrderWithPayment", conn);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@OrderId", dto.OrderId);
-                        cmd.Parameters.AddWithValue("@OrderAmount", dto.OrderAmount);
-                        if (dto.TransactionMode.ToLower() == "creditcard")
-                        {
-                            TransactionModeId = 0.ToString();
-                            // orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                        }
-                        else if (dto.TransactionMode.ToLower() == "debitcard")
-                        {
-                            TransactionModeId = 1.ToString(); 
-                            //    orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                        }
-                        else if (dto.TransactionMode.ToLower() == "cheque")
-                        {
-                            TransactionModeId = 2.ToString();
-                            //  orderPayment.TransactionModeNumber = dto.transactionModeNumber;
-                        }
-                        else if (dto.TransactionMode.ToLower() == "cash")
-                        {
-                            TransactionModeId = 3.ToString();
-                            //orderPayment.TransactionModeNumber = "";
-                        }
-                        else
-                        {
-                            //  transaction.Rollback();
-                            responseobj.Data = null;
-                            responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                            responseobj.Status.Message = "Customer is not select Transaction Mode.";
-                            responseobj.Status.Response = "Failed";
-                            //throw new Exception("Customer is not select Transaction Mode.");
-                        }
-                        cmd.Parameters.AddWithValue("@TransactionMode", TransactionModeId);
-                        cmd.Parameters.AddWithValue("@transactionModeNumber", dto.transactionModeNumber);
-                        cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
-
-                        await cmd.ExecuteNonQueryAsync();
-
-                        adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(ds);
-
-                        for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
-                        {
-                            if (i == 0)
-                            {
-                                RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                if (RequestStatus.ToLower().Contains("successfully"))
-                                {
-                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                    responseobj.Data = dto;
-                                    responseobj.Status.Code = (int)HttpStatusCode.OK;
-                                    responseobj.Status.Message = RequestStatus;
-                                    responseobj.Status.Response = "Success";
-                                    break;
-                                }
-                                else {
-                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                    responseobj.Data = null;
-                                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                                    responseobj.Status.Message = RequestStatus;
-                                    responseobj.Status.Response = "FAILED";
-                                }
-                            }
-                        }
-
-                        //if (!string.IsNullOrEmpty(RequestStatus))
-                        //{
-                        //    if (RequestStatus.ToLower().Contains("successfully"))
-                        //    {
-                        //        responseobj.Data = dto;
-                        //        responseobj.Status.Code = (int)HttpStatusCode.OK;
-                        //        responseobj.Status.Message = customerWallet != null ? "Customer Wallet updated succesfully." : "Customer Wallet created succesfully.";
-                        //        responseobj.Status.Response = "Success";
-                        //    }
-                        //    else
-                        //    {
-                        //        responseobj.Data = null;
-                        //        responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
-                        //        responseobj.Status.Message = RequestStatus;
-                        //        responseobj.Status.Response = "failed";
-                        //    }
-                        //}
+                        TransactionModeId = 0.ToString();
+                        // orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                    }
+                    else if (dto.TransactionMode.ToLower() == "debitcard")
+                    {
+                        TransactionModeId = 1.ToString();
+                        //    orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                    }
+                    else if (dto.TransactionMode.ToLower() == "cheque")
+                    {
+                        TransactionModeId = 2.ToString();
+                        //  orderPayment.TransactionModeNumber = dto.transactionModeNumber;
+                    }
+                    else if (dto.TransactionMode.ToLower() == "cash")
+                    {
+                        TransactionModeId = 3.ToString();
+                        //orderPayment.TransactionModeNumber = "";
                     }
                     else
                     {
+                        //  transaction.Rollback();
                         responseobj.Data = null;
                         responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                        responseobj.Status.Message = "Invalid request";
-                        responseobj.Status.Response = "failed";
+                        responseobj.Status.Message = "Customer is not select Transaction Mode.";
+                        responseobj.Status.Response = "Failed";
+                        //throw new Exception("Customer is not select Transaction Mode.");
                     }
 
+                    string OrderWithPaymentResult = string.Empty;
+                    var CustomerIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CustomerId", dto.CustomerId);
+                    var OrderAmountSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@Amount", dto.OrderAmount);
+                    var TransactionModeSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@TransactionMode", TransactionModeId);
+                    var transactionModeNumberSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@transactionModeNumber", dto.transactionModeNumber);
+                    var OrderIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderId", dto.OrderId);
+
+                    var OrderWithPaymentResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderWithPaymentResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
+                    await _context.Database.ExecuteSqlRawAsync("exec dbo.sp_OrderWithPayment @OrderId={0},@OrderAmount={1},@TransactionMode={2},@transactionModeNumber={3},@CustomerId={4},@OrderWithPaymentResult={5} out", OrderIdSQLParam, OrderAmountSQLParam, TransactionModeSQLParam, transactionModeNumberSQLParam, CustomerIdSQLParam, OrderWithPaymentResultSQLParam);
+
+                    if (OrderWithPaymentResultSQLParam.Value != DBNull.Value)
+                    {
+                        OrderWithPaymentResult = (string)OrderWithPaymentResultSQLParam.Value;
+                    }
+
+                    if (OrderWithPaymentResult.ToLower().Contains("placed"))
+                    {
+                        RequestStatus = OrderWithPaymentResult;
+                        responseobj.Data = dto;
+                        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        responseobj.Status.Message = RequestStatus;
+                        responseobj.Status.Response = "Success";
+                    }
+                    else
+                    {
+                        RequestStatus = OrderWithPaymentResult;
+                        responseobj.Data = null;
+                        responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                        responseobj.Status.Message = RequestStatus;
+                        responseobj.Status.Response = "FAILED";
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    await transaction.RollbackAsync();
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Invalid request";
+                    responseobj.Status.Response = "failed";
                 }
-                return responseobj;
             }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
         }
         public async Task<Response<OrderWithOutPaymentRequest>> OrderWithOutPayment(OrderWithOutPaymentRequest dto)
         {
             Response<OrderWithOutPaymentRequest> responseobj = new Response<OrderWithOutPaymentRequest>();
-            using (var transaction = _context.Database.BeginTransaction())
+
+            try
             {
-                try
+                if (dto != null)
                 {
-                    if (dto != null)
+                    string TransactionModeId = string.Empty;
+
+                    string OrderWithoutpaymentResult = string.Empty;
+                    var OrderIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderId", dto.OrderId);
+                    var OrderAmountSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderAmount", dto.OrderAmount);
+                    var CustomerIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CustomerId", dto.CustomerId);
+
+                    var OrderWithPaymentResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderWithoutPaymentResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
+                    await _context.Database.ExecuteSqlRawAsync("exec dbo.sp_OrderWithOutPayment @OrderId={0},@OrderAmount={1},@CustomerId={2},@OrderWithoutPaymentResult={3} out", OrderIdSQLParam, OrderAmountSQLParam, CustomerIdSQLParam, OrderWithPaymentResultSQLParam);
+
+                    if (OrderWithPaymentResultSQLParam.Value != DBNull.Value)
                     {
-                        string RequestStatus = string.Empty;
-                        string TransactionModeId = string.Empty;
-                        SqlConnection conn = new SqlConnection(_context.Database.GetDbConnection().ConnectionString);
+                        OrderWithoutpaymentResult = (string)OrderWithPaymentResultSQLParam.Value;
+                    }
 
-                        SqlDataAdapter adapter;
-                        DataSet ds = new DataSet();
-                        if (conn.State == ConnectionState.Closed)
-                        {
-                            conn.Open();
-                        }
 
-                        SqlCommand cmd = new SqlCommand("sp_OrderWithOutPayment", conn);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@OrderId", dto.OrderId);
-                        cmd.Parameters.AddWithValue("@OrderAmount", dto.OrderAmount);
-                        cmd.Parameters.AddWithValue("@CustomerId", dto.CustomerId);
-
-                        await cmd.ExecuteNonQueryAsync();
-
-                        adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(ds);
-
-                        for (int i = 0; i <= ds.Tables[0].Rows.Count - 1; i++)
-                        {
-                            if (i == 0)
-                            {
-                                RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                if (RequestStatus.ToLower().Contains("successfully"))
-                                {
-                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                    responseobj.Data = dto;
-                                    responseobj.Status.Code = (int)HttpStatusCode.OK;
-                                    responseobj.Status.Message = RequestStatus;
-                                    responseobj.Status.Response = "Success";
-                                    break;
-                                }
-                                else
-                                {
-                                    RequestStatus = ds.Tables[0].Rows[i][0].ToString();
-                                    responseobj.Data = null;
-                                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                                    responseobj.Status.Message = RequestStatus;
-                                    responseobj.Status.Response = "FAILED";
-                                }
-                            }
-                        }
-                        // var OrderpaymentDataInserted = false;
-                        
-
+                    if (OrderWithoutpaymentResult.ToLower().Contains("placed"))
+                    {
+                        responseobj.Data = dto;
+                        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        responseobj.Status.Message = OrderWithoutpaymentResult;
+                        responseobj.Status.Response = "Success";
                     }
                     else
                     {
                         responseobj.Data = null;
                         responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                        responseobj.Status.Message = "Invalid request";
+                        responseobj.Status.Message = OrderWithoutpaymentResult;
                         responseobj.Status.Response = "FAILED";
                     }
+
+                    // var OrderpaymentDataInserted = false;
+
+
                 }
-                catch (Exception ex)
+                else
                 {
                     responseobj.Data = null;
                     responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                    responseobj.Status.Message = ex.ToString();
+                    responseobj.Status.Message = "Invalid request";
                     responseobj.Status.Response = "FAILED";
-                    await transaction.RollbackAsync();
                 }
-                return responseobj;
             }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "FAILED";
+            }
+            return responseobj;
         }
     }
 }

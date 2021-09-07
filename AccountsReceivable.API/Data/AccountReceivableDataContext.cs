@@ -1,13 +1,12 @@
 ﻿using AccountsReceivable.API.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity.Infrastructure;
-
 namespace AccountsReceivable.API.Data
 {
     public class AccountReceivableDataContext:DbContext
     {
         public AccountReceivableDataContext(DbContextOptions<AccountReceivableDataContext> options) : base(options)
         {
+            Database.SetCommandTimeout(9000);
         }
         public DbSet<CustomerWallet> CustomerWallet { get; set; }
         public DbSet<CustomerWalletTransaction> CustomerWalletTransaction { get; set; }
@@ -18,5 +17,6 @@ namespace AccountsReceivable.API.Data
         public DbSet<CashBackMasters> CashBackMaster { get; set; }
         public DbSet<CashBackTransaction> CashBackTransaction { get; set; }
         public DbSet<CashbackExclusion> CashbackExclusion { get; set; }
+        public DbSet<CustomerWalletInfo> CustomerWalletInfo { get; set; }
     }
 }

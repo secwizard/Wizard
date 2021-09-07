@@ -2,18 +2,16 @@
 using AccountsReceivable.API.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class UpdateCashBackController : Controller
+    public class CashBackController : Controller
     {
         private readonly IUpdateCashBackService _updateCashBackService;
-        public UpdateCashBackController(IUpdateCashBackService updateCashBackService)
+        public CashBackController(IUpdateCashBackService updateCashBackService)
         {
             _updateCashBackService = updateCashBackService;
         }
@@ -23,6 +21,18 @@ namespace AccountsReceivable.API.Controllers
             try
             {
                 return Ok(await _updateCashBackService.AddCashBackForCustomer(cashbackMasterRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetCashbackDetails(CashbackDetail cashbackDetails)
+        {
+            try
+            {
+                return Ok(await _updateCashBackService.GetCashbackDetails(cashbackDetails));
             }
             catch (Exception ex)
             {
