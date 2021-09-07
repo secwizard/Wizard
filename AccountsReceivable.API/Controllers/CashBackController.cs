@@ -8,10 +8,10 @@ namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class UpdateCashBackController : Controller
+    public class CashBackController : Controller
     {
         private readonly IUpdateCashBackService _updateCashBackService;
-        public UpdateCashBackController(IUpdateCashBackService updateCashBackService)
+        public CashBackController(IUpdateCashBackService updateCashBackService)
         {
             _updateCashBackService = updateCashBackService;
         }

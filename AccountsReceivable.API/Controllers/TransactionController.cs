@@ -9,10 +9,10 @@ namespace AccountsReceivable.API.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class UpdateTransactionController : Controller
+    public class TransactionController : Controller
     {
         private readonly IUpdateTransactionService _updateTransactionService;
-        public UpdateTransactionController(IUpdateTransactionService updateTransactionService)
+        public TransactionController(IUpdateTransactionService updateTransactionService)
         {
             _updateTransactionService = updateTransactionService;
         }
