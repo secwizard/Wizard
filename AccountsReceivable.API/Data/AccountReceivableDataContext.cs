@@ -18,5 +18,8 @@ namespace AccountsReceivable.API.Data
         public DbSet<CashBackTransaction> CashBackTransaction { get; set; }
         public DbSet<CashbackExclusion> CashbackExclusion { get; set; }
         public DbSet<CustomerWalletInfo> CustomerWalletInfo { get; set; }
+        public DbSet<CustomerWalletTransactionList> CustomerWalletTransactionList { get; set; }
+        public DbSet<CustomerDepositAmount> CustomerDepositAmount { get; set; }
+        
     }
 }

@@ -4,9 +4,11 @@ using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AutoMapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -15,11 +17,9 @@ namespace AccountsReceivable.API.Services
     public class UpdateTransactionService : IUpdateTransactionService
     {
         private readonly AccountReceivableDataContext _context;
-        private readonly IMapper _mapper;
-        public UpdateTransactionService(AccountReceivableDataContext context, IMapper mapper)
+        public UpdateTransactionService(AccountReceivableDataContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
         public async Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction dto)
         {
@@ -28,35 +28,33 @@ namespace AccountsReceivable.API.Services
             {
                 if (dto != null)
                 {
-                    string DispositResult = string.Empty;
-                    var CustomerIdSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@CustomerId", dto.CustomerId);
-                    var amountSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@Amount", dto.Amount);
 
-                    var DispositResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@DispositResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
-                    await _context.Database.ExecuteSqlRawAsync("exec dbo.CustomerDepositAmount @CustomerId={0},@Amount={1},@DispositResult={2} out", CustomerIdSQLParam, amountSQLParam, DispositResultSQLParam);
+                    var parmsList = new SqlParameter[] {
+                        new SqlParameter("@customerId", dto.CustomerId),
+                        new SqlParameter("@Amount", dto.Amount),
+                        new SqlParameter("@TransactionMode", dto.TransactionMode),
+                        new SqlParameter("@CardNumber", dto.CardNumber??"")
+                    };
 
-                    if (DispositResultSQLParam.Value != DBNull.Value)
+                    string sqlText = $"EXECUTE dbo.CustomerDepositAmount @customerId, @Amount, @TransactionMode, @CardNumber";
+                    var result = await _context.CustomerDepositAmount.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
+
+                    if (result != null && result.Count > 0 && (result?.FirstOrDefault()?.Id ?? 0) == 1)
                     {
-                        DispositResult = (string)DispositResultSQLParam.Value;
+                        responseobj.Data = dto;
+                        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        responseobj.Status.Message = result.FirstOrDefault().Msg;
+                        responseobj.Status.Response = "success";
+                    }
+                    else
+                    {
+                        responseobj.Data = null;
+                        responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                        responseobj.Status.Message = result.FirstOrDefault().Msg;
+                        responseobj.Status.Response = "failed";
                     }
 
-                    if (!string.IsNullOrEmpty(DispositResult))
-                    {
-                        if (DispositResult.ToLower().Contains("successfully"))
-                        {
-                            responseobj.Data = dto;
-                            responseobj.Status.Code = (int)HttpStatusCode.OK;
-                            responseobj.Status.Message = DispositResult;
-                            responseobj.Status.Response = "Success";
-                        }
-                        else
-                        {
-                            responseobj.Data = null;
-                            responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
-                            responseobj.Status.Message = DispositResult;
-                            responseobj.Status.Response = "failed";
-                        }
-                    }
                 }
                 else
                 {

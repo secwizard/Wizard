@@ -9,52 +9,61 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Threading.Tasks;
+using AccountsReceivable.API.Models.ResponseModel;
+using System.Linq;
+
 namespace AccountsReceivable.API.Services
 {
     public class GetCustomerWalletInfoService : IGetCustomerWalletInfoService
     {
         private readonly AccountReceivableDataContext _context;
-        private readonly IMapper _mapper;
-        public GetCustomerWalletInfoService(AccountReceivableDataContext context, IMapper mapper)
+        public GetCustomerWalletInfoService(AccountReceivableDataContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
-        public async Task<Response<List<CustomerWalletInfo>>> GetCustomerWalletInfo(int customerid)
+        public async Task<Response<ResponseGetCustomerWalletInfo>> GetCustomerWalletInfo(int customerid)
         {
-            Response<List<CustomerWalletInfo>> responseobj = new Response<List<CustomerWalletInfo>>();
+            Response<ResponseGetCustomerWalletInfo> response = new Response<ResponseGetCustomerWalletInfo>();
 
             try
             {
-                var parmsList = new SqlParameter[] {
-                    new SqlParameter("@customerId",customerid),
-                };
-                string sqlTextList = $"EXECUTE dbo.GetCustomerWalletInfo @customerId";
-                List<CustomerWalletInfo> response = await _context.CustomerWalletInfo.FromSqlRaw(sqlTextList, parmsList).ToListAsync();
+                var parmsList = new SqlParameter[] { new SqlParameter("@customerId",customerid) };
 
-                if (response != null && response.Count > 0)
+                string sqlText = $"EXECUTE dbo.GetCustomerWalletInfo @customerId";
+                var result = await _context.CustomerWalletInfo.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
+                string sqlText2 = $"EXECUTE dbo.GetCustomerWalletTransactionInfo @customerId";
+                var resultList = await _context.CustomerWalletTransactionList.FromSqlRaw(sqlText2, parmsList).ToListAsync();
+
+                if (result != null && resultList != null)
                 {
-                    responseobj.Data = response;
-                    responseobj.Status.Code = (int)HttpStatusCode.OK;
-                    responseobj.Status.Message = "Get successfully Information of customer wallet";
-                    responseobj.Status.Response = "Success";
+                    ResponseGetCustomerWalletInfo responseobj = new ResponseGetCustomerWalletInfo
+                    {
+                        CustomerWalletInfo = result.FirstOrDefault(),
+                        CustomerWalletTransactionList = resultList
+                    };
+
+                    response.Data = responseobj;
+                    response.Status.Code = (int)HttpStatusCode.OK;
+                    response.Status.Message = "Get successfully Information of customer wallet";
+                    response.Status.Response = "success";
                 }
                 else
                 {
-                    responseobj.Data = null;
-                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                    responseobj.Status.Message = "Customer is not exists.";
-                    responseobj.Status.Response = "Failed";
+                    response.Data = null;
+                    response.Status.Code = (int)HttpStatusCode.NotFound;
+                    response.Status.Message = "Customer is not exists.";
+                    response.Status.Response = "failed";
                 }
             }
             catch (Exception ex)
             {
-                responseobj.Data = null;
-                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
-                responseobj.Status.Message = ex.Message.ToString();
-                responseobj.Status.Response = "Failed";
+                response.Data = null;
+                response.Status.Code = (int)HttpStatusCode.InternalServerError;
+                response.Status.Message = ex.Message.ToString();
+                response.Status.Response = "failed";
             }
-            return responseobj;
+            return response;
         }
     }
 }
