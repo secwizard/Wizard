@@ -33,10 +33,11 @@ namespace AccountsReceivable.API.Services
                         new SqlParameter("@customerId", dto.CustomerId),
                         new SqlParameter("@Amount", dto.Amount),
                         new SqlParameter("@TransactionMode", dto.TransactionMode),
-                        new SqlParameter("@CardNumber", dto.CardNumber??"")
+                        new SqlParameter("@CardNumber", dto.CardNumber??""),
+                        new SqlParameter("@UserId", dto.UserId)
                     };
 
-                    string sqlText = $"EXECUTE dbo.CustomerDepositAmount @customerId, @Amount, @TransactionMode, @CardNumber";
+                    string sqlText = $"EXECUTE dbo.CustomerDepositAmount @customerId, @Amount, @TransactionMode, @CardNumber, @UserId";
                     var result = await _context.CustomerDepositAmount.FromSqlRaw(sqlText, parmsList).ToListAsync();
 
 

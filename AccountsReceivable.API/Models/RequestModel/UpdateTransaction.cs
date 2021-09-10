@@ -6,5 +6,6 @@
         public int? Amount { get; set; }
         public string TransactionMode { get; set; }
         public string CardNumber { get; set; }
+        public int UserId { get; set; }
     }
 }
