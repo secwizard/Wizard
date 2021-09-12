@@ -1,4 +1,5 @@
 ﻿using AccountsReceivable.API.Models;
+using AccountsReceivable.API.Models.ResponseModel;
 using Microsoft.EntityFrameworkCore;
 namespace AccountsReceivable.API.Data
 {
@@ -20,6 +21,8 @@ namespace AccountsReceivable.API.Data
         public DbSet<CustomerWalletInfo> CustomerWalletInfo { get; set; }
         public DbSet<CustomerWalletTransactionList> CustomerWalletTransactionList { get; set; }
         public DbSet<CustomerDepositAmount> CustomerDepositAmount { get; set; }
-        
+        public DbSet<OrderWithPayment> OrderWithPayment { get; set; }
+        public DbSet<ResponseCheckCustomerWalletDetailForPlaceOrder> CheckCustomerWalletDetailForPlaceOrder { get; set; }
+
     }
 }
