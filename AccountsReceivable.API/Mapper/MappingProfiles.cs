@@ -13,7 +13,7 @@ namespace AccountsReceivable.API.Mapper
             CreateMap<CustomerWalletRequest, CustomerWallet>().ReverseMap();
             CreateMap<OrderPaymentRequest, OrderPayment>().ReverseMap();
             CreateMap<TransactionModeRequest, TransactionMode>().ReverseMap();
-            CreateMap<CashbackMasterRequest, CashBackMasters>().ReverseMap();
+            CreateMap<CashbackMasterRequest, CashBackMaster>().ReverseMap();
             CreateMap<UpdateTransaction, CustomerWallet>().ReverseMap();
             CreateMap<OrderPaymentRequest, CustomerWallet>().ReverseMap();
             CreateMap<OrderWithOutPaymentRequest, CustomerWallet>().ReverseMap();

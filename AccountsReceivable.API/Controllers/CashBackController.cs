@@ -27,6 +27,7 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
+        
         [HttpPost]
         public async Task<IActionResult> GetCashbackDetails(CashbackDetail cashbackDetails)
         {
@@ -39,5 +40,21 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> GetCustomerCashBackList(RequestGetCustomerCashBackList request)
+        {
+            try
+            {
+                return Ok(await _updateCashBackService.GetCustomerCashBackList(request));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+
+        
     }
 }
