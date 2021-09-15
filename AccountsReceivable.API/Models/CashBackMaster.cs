@@ -16,5 +16,6 @@ namespace AccountsReceivable.API.Models
         public int CashbackValue { get; set; }
         public bool IsPercentage { get; set; }
         public bool IsActive { get; set; }
+
     }
 }
