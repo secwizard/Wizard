@@ -11,12 +11,10 @@ namespace AccountsReceivable.API.Models
         [Key]
         public int CustomerWalletTransactionId { get; set; }
         public int? CustomerWalletId { get; set; }
-        public int? CustomerId { get; set; }
-
         public int? TransactionAmount { get; set; }
         public string TransactionType { get; set; }
         public int? TransactionModeId { get; set; }
-        public DateTime? TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; }
         public string CardNumber { get; set; } 
     }
 }

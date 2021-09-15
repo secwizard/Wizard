@@ -29,7 +29,7 @@ namespace AccountsReceivable.API
             services.AddSwaggerGen();
             services.AddControllers().AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddScoped<IUpdateTransactionService, UpdateTransactionService>();
-            services.AddScoped<IGetCustomerWalletInfoService, GetCustomerWalletInfoService>();
+            services.AddScoped<ICustomerWalletService, CustomerWalletService>();
             services.AddScoped<IUpdateCashBackService, UpdateCashBackService>();
 
         }

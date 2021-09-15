@@ -10,5 +10,6 @@ namespace AccountsReceivable.API.Models.RequestModel
         public string OrderId { get; set; }
         public int? OrderAmount { get; set; }
         public int? CustomerId { get; set; }
+        public int UserId { get; set; }
     }
 }

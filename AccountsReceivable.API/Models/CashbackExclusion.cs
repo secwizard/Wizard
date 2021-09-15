@@ -12,8 +12,8 @@ namespace AccountsReceivable.API.Models
     {
         [Key]
         public int CashbackExclusionId { get; set; }
-        public int? CashBackMasterId { get; set; }
-        public int? CustomerId { get; set; }
-        public Boolean IsActive { get; set; }
+        public int CashBackMasterId { get; set; }
+        public int CustomerId { get; set; }
+        public bool IsActive { get; set; }
     }
 }

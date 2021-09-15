@@ -1,11 +1,15 @@
 ﻿using AccountsReceivable.API.Data;
 using AccountsReceivable.API.Helpers;
+using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AutoMapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -104,7 +108,7 @@ namespace AccountsReceivable.API.Services
                         var CompanyId = new Microsoft.Data.SqlClient.SqlParameter("@CompanyId", dto.CompanyId.Value);
                         var StartDate = new Microsoft.Data.SqlClient.SqlParameter("@StartDate", dto.StartDate.ToString());
                         var EndDate = new Microsoft.Data.SqlClient.SqlParameter("@EndDate", dto.EndDate.ToString());
-                        
+
                         var GetCashbackResultSQLParam = new Microsoft.Data.SqlClient.SqlParameter("@GetCashbackResult", SqlDbType.VarChar, 128) { Direction = ParameterDirection.Output };
                         await _context.Database.ExecuteSqlRawAsync("exec dbo.GetCashbackDetails @CompanyId={0},@StartDate={1},@EndDate={2},@GetCashbackResult={3} OUTPUT", CompanyId, StartDate, EndDate, GetCashbackResultSQLParam);
 
@@ -151,6 +155,39 @@ namespace AccountsReceivable.API.Services
             return responseobj;
 
         }
+        public async Task<ResponseList<GetCustomerCashBackList>> GetCustomerCashBackList(RequestGetCustomerCashBackList request)
+        {
+            ResponseList<GetCustomerCashBackList> responseobj = new ResponseList<GetCustomerCashBackList>();
+            List<GetCustomerCashBackList> list = new List<GetCustomerCashBackList>();
+            try
+            {
+                foreach (var item in request.CustomerIds)
+                {
+                    var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item), new SqlParameter("@CompanyId", request.CompanyId) };
+                    string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CompanyId";
+                    var result = await _context.GetCustomerCashBackList.FromSqlRaw(sqlText, parmsList).ToListAsync();
+                    if (result.FirstOrDefault().TotalAmount != null)
+                    {
+                        list.Add(result.FirstOrDefault());
+                    }
+                }
+
+                responseobj.Data = list;
+                responseobj.Status.Code = (int)HttpStatusCode.OK;
+                responseobj.Status.Message = "";
+                responseobj.Status.Response = "success";
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                responseobj.Status.Message = ex.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+
+        }
+
     }
 
 }
