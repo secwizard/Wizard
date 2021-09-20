@@ -163,14 +163,13 @@ namespace AccountsReceivable.API.Services
             {
                 foreach (var item in request.CustomerIds)
                 {
-                    var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item.Id), new SqlParameter("@CompanyId", request.CompanyId) };
-                    string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CompanyId";
+                    var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item.Id), new SqlParameter("@CustomerName", item.Name), new SqlParameter("@CompanyId", request.CompanyId) };
+                    string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CustomerName,@CompanyId";
                     var result = await _context.GetCustomerCashBackList.FromSqlRaw(sqlText, parmsList).ToListAsync();
                     if (result != null && result.Count > 0)
                     {
                         foreach (var item2 in result)
                         {
-                            item2.CustomerName = item.Name;
                             list.Add(item2);
                         }
                     }
