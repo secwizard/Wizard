@@ -55,6 +55,17 @@ namespace AccountsReceivable.API.Controllers
         }
 
 
-        
+        [HttpPost]
+        public async Task<IActionResult> CreateCustomerCashBack(RequestCreateCustomerCashBack request)
+        {
+            try
+            {
+                return Ok(await _updateCashBackService.CreateCustomerCashBack(request));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

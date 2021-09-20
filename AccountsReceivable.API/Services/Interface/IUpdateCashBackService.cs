@@ -13,5 +13,6 @@ namespace AccountsReceivable.API.Services.Interface
         Task<Response<CashbackMasterRequest>> AddCashBackForCustomer(CashbackMasterRequest dto);
         Task<Response<CashbackDetail>> GetCashbackDetails(CashbackDetail dto); 
         Task<ResponseList<GetCustomerCashBackList>> GetCustomerCashBackList(RequestGetCustomerCashBackList dto); 
+        Task<Response<string>> CreateCustomerCashBack(RequestCreateCustomerCashBack request); 
     }
 }

@@ -24,7 +24,8 @@ namespace AccountsReceivable.API.Data
         public DbSet<OrderWithPayment> OrderWithPayment { get; set; }
         public DbSet<ResponseCheckCustomerWalletDetailForPlaceOrder> CheckCustomerWalletDetailForPlaceOrder { get; set; }
         public DbSet<GetCustomerCashBackList> GetCustomerCashBackList { get; set; }
-        
+        public DbSet<ResponseSaveCustomerCashBackDetail> SaveCustomerCashBackDetail { get; set; }
+
 
     }
 }
