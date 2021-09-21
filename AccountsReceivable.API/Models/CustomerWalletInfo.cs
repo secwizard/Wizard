@@ -17,7 +17,7 @@ namespace AccountsReceivable.API.Models
     public class CustomerWalletTransactionList
     {
         [Key]
-        public int TransactionId { get; set; }
+        public int? TransactionId { get; set; }
         public int? TransactionAmount { get; set; }
         public string TransactionType { get; set; }
         public string TransactionMode { get; set; }

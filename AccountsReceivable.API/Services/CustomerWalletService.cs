@@ -36,7 +36,7 @@ namespace AccountsReceivable.API.Services
                 string sqlText2 = $"EXECUTE dbo.GetCustomerWalletTransactionInfo @customerId";
                 var resultList = await _context.CustomerWalletTransactionList.FromSqlRaw(sqlText2, parmsList).ToListAsync();
 
-                if (result != null && resultList != null)
+                if (result != null)
                 {
                     ResponseGetCustomerWalletInfo responseobj = new ResponseGetCustomerWalletInfo
                     {
