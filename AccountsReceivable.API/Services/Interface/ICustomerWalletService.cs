@@ -8,7 +8,8 @@ namespace AccountsReceivable.API.Services.Interface
 {
     public interface ICustomerWalletService
     {
-        Task<Response<ResponseGetCustomerWalletInfo>> GetCustomerWalletInfo(int customerId); 
+        Task<Response<ResponseGetCustomerWalletInfo>> GetCustomerWalletInfo(int customerId);
+        Task<Response<UpdateTransaction>> CreateNewCustomerWallet(UpdateTransaction updateTransaction);
         Task<Response<ResponseCheckCustomerWalletDetailForPlaceOrder>> CheckCustomerWalletDetailForPlaceOrder(CheckCustomerWalletDetailForPlaceOrder request); 
     }
 }
