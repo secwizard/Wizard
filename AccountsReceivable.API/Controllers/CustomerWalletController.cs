@@ -1,4 +1,5 @@
-﻿using AccountsReceivable.API.Models.RequestModel;
+﻿using AccountsReceivable.API.Helpers;
+using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,12 @@ namespace AccountsReceivable.API.Controllers
         public CustomerWalletController(ICustomerWalletService cwService)
         {
             _cwService = cwService;
+        }
+
+        [HttpPost]
+        public async Task<Response<UpdateTransaction>> CreateNewCustomerWallet(UpdateTransaction updateTransaction)
+        {
+            return await _cwService.CreateNewCustomerWallet(updateTransaction);
         }
 
         [HttpPost()]

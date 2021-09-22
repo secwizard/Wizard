@@ -22,6 +22,59 @@ namespace AccountsReceivable.API.Services
         {
             _context = context;
         }
+
+        public async Task<Response<UpdateTransaction>> CreateNewCustomerWallet(UpdateTransaction dto)
+        {
+            Response<UpdateTransaction> responseobj = new Response<UpdateTransaction>();
+            try
+            {
+                if (dto != null)
+                {
+
+                    var parmsList = new SqlParameter[] {
+                        new SqlParameter("@customerId", dto.CustomerId),
+                        new SqlParameter("@Amount", dto.Amount),
+                        new SqlParameter("@UserId", dto.UserId)
+                    };
+
+                    string sqlText = $"EXECUTE dbo.CreateNewCustomerWallet @customerId, @Amount, @UserId";
+                    var result = await _context.CustomerDepositAmount.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
+
+                    if (result != null && result.Count > 0 && (result?.FirstOrDefault()?.Id ?? 0) == 1)
+                    {
+                        responseobj.Data = dto;
+                        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        responseobj.Status.Message = result.FirstOrDefault().Msg;
+                        responseobj.Status.Response = "success";
+                    }
+                    else
+                    {
+                        responseobj.Data = null;
+                        responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg ?? "failed";
+                        responseobj.Status.Response = "failed";
+                    }
+
+                }
+                else
+                {
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Invalid request";
+                    responseobj.Status.Response = "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+
+        }
         public async Task<Response<ResponseGetCustomerWalletInfo>> GetCustomerWalletInfo(int customerid)
         {
             Response<ResponseGetCustomerWalletInfo> response = new Response<ResponseGetCustomerWalletInfo>();
@@ -36,7 +89,7 @@ namespace AccountsReceivable.API.Services
                 string sqlText2 = $"EXECUTE dbo.GetCustomerWalletTransactionInfo @customerId";
                 var resultList = await _context.CustomerWalletTransactionList.FromSqlRaw(sqlText2, parmsList).ToListAsync();
 
-                if (result != null && resultList != null)
+                if (result != null)
                 {
                     ResponseGetCustomerWalletInfo responseobj = new ResponseGetCustomerWalletInfo
                     {

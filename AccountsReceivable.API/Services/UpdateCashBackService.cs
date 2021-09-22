@@ -162,7 +162,8 @@ namespace AccountsReceivable.API.Services
             try
             {
                 foreach (var item in request.CustomerIds)
-                {
+                { 
+
                     var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item.Id), new SqlParameter("@CustomerName", item.Name), new SqlParameter("@CompanyId", request.CompanyId) };
                     string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CustomerName,@CompanyId";
                     var result = await _context.GetCustomerCashBackList.FromSqlRaw(sqlText, parmsList).ToListAsync();

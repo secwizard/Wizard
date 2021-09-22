@@ -50,7 +50,7 @@ namespace AccountsReceivable.API.Services
                     {
                         responseobj.Data = null;
                         responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
-                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg?? "failed";
+                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg ?? "failed";
                         responseobj.Status.Response = "failed";
                     }
 
@@ -80,11 +80,11 @@ namespace AccountsReceivable.API.Services
             {
                 if (dto != null)
                 {
-                    var parmsList = new SqlParameter[] { 
-                        new SqlParameter("@OrderId", dto.OrderId), 
-                        new SqlParameter("@OrderAmount", dto.OrderAmount), 
-                        new SqlParameter("@TransactionMode", dto.TransactionMode), 
-                        new SqlParameter("@transactionModeNumber", dto.transactionModeNumber), 
+                    var parmsList = new SqlParameter[] {
+                        new SqlParameter("@OrderId", dto.OrderId),
+                        new SqlParameter("@OrderAmount", dto.OrderAmount),
+                        new SqlParameter("@TransactionMode", dto.TransactionMode??""),
+                        new SqlParameter("@transactionModeNumber", dto.transactionModeNumber??""),
                         new SqlParameter("@customerId", dto.CustomerId),
                         new SqlParameter("@UserId", dto.UserId)
                     };
@@ -92,9 +92,9 @@ namespace AccountsReceivable.API.Services
                     string sqlText = $"EXECUTE dbo.sp_OrderWithPayment @OrderId, @OrderAmount, @TransactionMode, @transactionModeNumber, @CustomerId, @UserId";
                     var result = await _context.OrderWithPayment.FromSqlRaw(sqlText, parmsList).ToListAsync();
 
-                    if (result!=null &&result.Count>0 && (result?.FirstOrDefault()?.Id ?? 0) == 1)
+                    if (result != null && result.Count > 0 && (result?.FirstOrDefault()?.Id ?? 0) == 1)
                     {
-                       
+
                         responseobj.Data = dto;
                         responseobj.Status.Code = (int)HttpStatusCode.OK;
                         responseobj.Status.Message = result.FirstOrDefault().Msg;
@@ -104,7 +104,7 @@ namespace AccountsReceivable.API.Services
                     {
                         responseobj.Data = null;
                         responseobj.Status.Code = (int)HttpStatusCode.NotFound;
-                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg??"Data Not Found";
+                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg ?? "Data Not Found";
                         responseobj.Status.Response = "failed";
                     }
                 }
@@ -149,7 +149,7 @@ namespace AccountsReceivable.API.Services
                     {
                         responseobj.Data = dto;
                         responseobj.Status.Code = (int)HttpStatusCode.OK;
-                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg??"";
+                        responseobj.Status.Message = result?.FirstOrDefault()?.Msg ?? "";
                         responseobj.Status.Response = "success";
                     }
                     else
