@@ -50,5 +50,18 @@ namespace AccountsReceivable.API.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveCustomerPayment(SaveCustomerPaymentRequest saveCustomerPaymentRequest)
+        {
+            try
+            {
+                return Ok(await _cwService.SaveCustomerPayment(saveCustomerPaymentRequest));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
     }
 }

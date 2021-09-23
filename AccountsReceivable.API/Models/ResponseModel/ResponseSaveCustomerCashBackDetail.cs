@@ -11,4 +11,11 @@ namespace AccountsReceivable.API.Models.ResponseModel
         [Key]
         public string Message { get; set; }
     }
+    public class ResponseSaveCustomerPayment
+    {
+        [Key]
+        public int CustomerWalletId { get; set; }
+        public int CustomerId { get; set; }
+        public string Message { get; set; }
+    }
 }

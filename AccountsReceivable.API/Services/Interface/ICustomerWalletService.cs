@@ -10,6 +10,7 @@ namespace AccountsReceivable.API.Services.Interface
     {
         Task<Response<ResponseGetCustomerWalletInfo>> GetCustomerWalletInfo(int customerId);
         Task<Response<UpdateTransaction>> CreateNewCustomerWallet(UpdateTransaction updateTransaction);
-        Task<Response<ResponseCheckCustomerWalletDetailForPlaceOrder>> CheckCustomerWalletDetailForPlaceOrder(CheckCustomerWalletDetailForPlaceOrder request); 
+        Task<Response<ResponseCheckCustomerWalletDetailForPlaceOrder>> CheckCustomerWalletDetailForPlaceOrder(CheckCustomerWalletDetailForPlaceOrder request);
+        Task<Response<ResponseSaveCustomerPayment>> SaveCustomerPayment(SaveCustomerPaymentRequest customerPaymentRequest);
     }
 }
