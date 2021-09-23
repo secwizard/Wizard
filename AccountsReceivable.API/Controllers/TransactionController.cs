@@ -1,5 +1,6 @@
 ﻿using AccountsReceivable.API.Helpers;
 using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Models.ResponseModel;
 using AccountsReceivable.API.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,11 +17,13 @@ namespace AccountsReceivable.API.Controllers
         {
             _updateTransactionService = updateTransactionService;
         }
+        
         [HttpPost]
         public async Task<Response<UpdateTransaction>> CustomerDepositAmount(UpdateTransaction updateTransaction)
         {
             return await _updateTransactionService.CustomerDepositAmount(updateTransaction);
         }
+        
         [HttpPost]
         public async Task<IActionResult> OrderWithPayment(OrderPaymentRequest orderPaymentVM)
         {
@@ -33,6 +36,7 @@ namespace AccountsReceivable.API.Controllers
                 throw ex;
             }
         }
+        
         [HttpPost]
         public async Task<IActionResult> OrderWithOutPayment(OrderWithOutPaymentRequest orderPaymentVM)
         {
@@ -44,6 +48,12 @@ namespace AccountsReceivable.API.Controllers
             {
                 return BadRequest(ex);
             }
+        }
+
+        [HttpPost]
+        public async Task<ResponseList<ResponseCustomerOrderPaymentList>> CustomerOrderPaymentList(CustomerOrderPaymentList request)
+        {
+            return await _updateTransactionService.CustomerOrderPaymentList(request);
         }
     }
 }
