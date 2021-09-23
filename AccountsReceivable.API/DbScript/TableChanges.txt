@@ -1,0 +1,11 @@
+﻿GO
+ALTER TABLE CustomerWalletTransaction 
+ADD CardHolderName NVARCHAR(MAX)
+, ChequeNo NVARCHAR(500)
+, ChequeHolderName NVARCHAR(MAX)
+, Note NVARCHAR(MAX)
+GO
+
+insert into TransactionMode (ModeName, ShowInPayment, CreatedBy, CreatedDate) values ('Wallet', 1, NULL, GETDATE())
+
+GO
