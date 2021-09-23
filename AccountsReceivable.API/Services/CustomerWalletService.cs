@@ -159,5 +159,69 @@ namespace AccountsReceivable.API.Services
             return response;
         }
 
+        public async Task<Response<ResponseSaveCustomerPayment>> SaveCustomerPayment(SaveCustomerPaymentRequest customerPaymentRequest)
+        {
+            Response<ResponseSaveCustomerPayment> responseobj = new Response<ResponseSaveCustomerPayment>();
+            try
+            {
+                if (customerPaymentRequest != null)
+                {
+                    var parmsList = new SqlParameter[] {
+                        new SqlParameter("@CompanyId", customerPaymentRequest.CompanyId),
+                        new SqlParameter("@CustomerId", customerPaymentRequest.CustomerId),
+                        new SqlParameter("@TransactionAmount", customerPaymentRequest.TransactionAmount),
+                        new SqlParameter("@TransactionModeId", customerPaymentRequest.TransactionModeId),
+                        new SqlParameter("@TransactionType", customerPaymentRequest.TransactionType),
+                        new SqlParameter("@TransactionDate", customerPaymentRequest.TransactionDate),
+                        new SqlParameter("@CardNumber", customerPaymentRequest.CardNumber??""),
+                        new SqlParameter("@CardHolderName", customerPaymentRequest.CardHolderName??""),
+                        new SqlParameter("@ChequeNo", customerPaymentRequest.ChequeNo??""),
+                        new SqlParameter("@ChequeHolderName", customerPaymentRequest.ChequeHolderName??""),
+                        new SqlParameter("@Note", customerPaymentRequest.Note??""),
+                        new SqlParameter("@CreatedFrom", customerPaymentRequest.CreatedFrom??""),
+                        new SqlParameter("@OrderDetails", customerPaymentRequest.OrderDetails??""),
+                        new SqlParameter("@UserId", customerPaymentRequest.UserId),
+                        new SqlParameter("@CreatedAt", customerPaymentRequest.CreatedAt)
+                    };
+
+                    string sqlText = $"EXECUTE dbo.SaveCustomerPayment @CompanyId, @CustomerId, @TransactionAmount, @TransactionModeId, @TransactionType, @TransactionDate, @CardNumber, @CardHolderName, @ChequeNo, @ChequeHolderName, @Note, @CreatedFrom, @OrderDetails, @UserId, @CreatedAt";
+                    var result = await _context.SaveCustomerPayment.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
+
+                    if (result != null && result.Count > 0)
+                    {
+                        responseobj.Data = result[0];
+                        responseobj.Status.Code = (int)HttpStatusCode.OK;
+                        responseobj.Status.Message = result.FirstOrDefault().Message;
+                        responseobj.Status.Response = "success";
+                    }
+                    else
+                    {
+                        responseobj.Data = null;
+                        responseobj.Status.Code = (int)HttpStatusCode.BadRequest;
+                        responseobj.Status.Message = result?.FirstOrDefault()?.Message ?? "failed";
+                        responseobj.Status.Response = "failed";
+                    }
+
+                }
+                else
+                {
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Invalid request";
+                    responseobj.Status.Response = "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+
+        }
+
     }
 }
