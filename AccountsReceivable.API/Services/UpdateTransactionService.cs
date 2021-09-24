@@ -2,6 +2,7 @@
 using AccountsReceivable.API.Helpers;
 using AccountsReceivable.API.Models;
 using AccountsReceivable.API.Models.RequestModel;
+using AccountsReceivable.API.Models.ResponseModel;
 using AccountsReceivable.API.Services.Interface;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
@@ -177,5 +178,41 @@ namespace AccountsReceivable.API.Services
             }
             return responseobj;
         }
+
+        public async Task<ResponseList<ResponseCustomerOrderPaymentList>> CustomerOrderPaymentList(CustomerOrderPaymentList request)
+        {
+            ResponseList<ResponseCustomerOrderPaymentList> responseobj = new ResponseList<ResponseCustomerOrderPaymentList>();
+            try
+            {
+                var parmsList = new SqlParameter[] { new SqlParameter("@CustomerId", request.CustomerId) };
+                string sqlText = $"EXECUTE dbo.CustomerOrderPaymentList @CustomerId";
+                var result = await _context.CustomerOrderPaymentList.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
+                if (result != null && result.Count > 0)
+                {
+                    responseobj.Data = result;
+                    responseobj.Status.Code = (int)HttpStatusCode.OK;
+                    responseobj.Status.Message = "";
+                    responseobj.Status.Response = "Success";
+                }
+                else
+                {
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Data Not Found";
+                    responseobj.Status.Response = "failed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+        }
+
     }
 }
