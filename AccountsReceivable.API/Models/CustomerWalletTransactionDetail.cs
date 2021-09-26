@@ -12,6 +12,6 @@ namespace AccountsReceivable.API.Models
         public string ReferenceTable { get; set; }
         public int? CustomerId { get; set; }
         public string ReferenceId { get; set; }
-        public int? Amount { get; set; }
+        public decimal? Amount { get; set; }
     }
 }

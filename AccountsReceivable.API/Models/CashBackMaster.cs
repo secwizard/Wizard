@@ -9,11 +9,11 @@ namespace AccountsReceivable.API.Models
     {
         [Key]
         public int CashBackMasterId { get; set; }
-        public int MinimumBusinessAmount { get; set; }
-        public int MaximumCashbackAmount { get; set; }
+        public decimal MinimumBusinessAmount { get; set; }
+        public decimal MaximumCashbackAmount { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
-        public int CashbackValue { get; set; }
+        public decimal CashbackValue { get; set; }
         public bool IsPercentage { get; set; }
         public bool IsActive { get; set; }
 
