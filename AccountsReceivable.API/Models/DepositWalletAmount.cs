@@ -10,6 +10,6 @@ namespace AccountsReceivable.API.Models
         //public int? TotalBusinessAmount { get; set; }
         //public int? TotalPaidAmount { get; set; }
         //public int? DueAmount { get; set; }
-        public int? CreditLimit { get; set; }
+        public decimal? CreditLimit { get; set; }
     }
 }

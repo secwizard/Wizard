@@ -9,9 +9,9 @@ namespace AccountsReceivable.API.Models
         [Key]
         public int CustomerWalletId { get; set; }
         public int? CustomerId { get; set; }
-        public int? TotalBusinessAmount { get; set; }
-        public int? TotalPaidAmount { get; set; }
-        public int? DueAmount { get; set; }
-        public int? CreditLimit { get; set; }
+        public decimal? TotalBusinessAmount { get; set; }
+        public decimal? TotalPaidAmount { get; set; }
+        public decimal? DueAmount { get; set; }
+        public decimal? CreditLimit { get; set; }
     }
 }
