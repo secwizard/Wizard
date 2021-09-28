@@ -15,6 +15,7 @@ namespace AccountsReceivable.API.Models
         public string TransactionType { get; set; }
         public int? TransactionModeId { get; set; }
         public DateTime TransactionDate { get; set; }
-        public string CardNumber { get; set; } 
+        public string CardNumber { get; set; }
+        public bool IsActive { get; set; } 
     }
 }

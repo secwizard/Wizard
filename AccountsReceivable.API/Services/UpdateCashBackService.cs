@@ -161,17 +161,22 @@ namespace AccountsReceivable.API.Services
             List<GetCustomerCashBackList> list = new List<GetCustomerCashBackList>();
             try
             {
-                foreach (var item in request.CustomerIds)
-                { 
-
-                    var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item.Id), new SqlParameter("@CustomerName", item.Name), new SqlParameter("@CompanyId", request.CompanyId) };
-                    string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CustomerName,@CompanyId";
-                    var result = await _context.GetCustomerCashBackList.FromSqlRaw(sqlText, parmsList).ToListAsync();
-                    if (result != null && result.Count > 0)
+                DateTime dt = DateTime.Now;
+                var data = await _context.CashBackTransaction.Where(x => x.AppliedDateTime.Month == dt.Month && x.AppliedDateTime.Year == dt.Year).FirstOrDefaultAsync();
+                if (data == null)
+                {
+                    foreach (var item in request.CustomerIds)
                     {
-                        foreach (var item2 in result)
+
+                        var parmsList = new SqlParameter[] { new SqlParameter("@customerId", item.Id), new SqlParameter("@CustomerName", item.Name), new SqlParameter("@CompanyId", request.CompanyId) };
+                        string sqlText = $"EXECUTE dbo.GetCustomerCashBackDetail @customerId,@CustomerName,@CompanyId";
+                        var result = await _context.GetCustomerCashBackList.FromSqlRaw(sqlText, parmsList).ToListAsync();
+                        if (result != null && result.Count > 0)
                         {
-                            list.Add(item2);
+                            foreach (var item2 in result)
+                            {
+                                list.Add(item2);
+                            }
                         }
                     }
                 }
@@ -198,7 +203,7 @@ namespace AccountsReceivable.API.Services
             {
                 foreach (var item in request.CustomerDtlList)
                 {
-                    var parmsList = new SqlParameter[] { 
+                    var parmsList = new SqlParameter[] {
                         new SqlParameter("@CompanyId", request.CompanyId),
                         new SqlParameter("@UserId", request.UserId),
                         new SqlParameter("@CustomerId", item.CustomerId),
@@ -215,7 +220,7 @@ namespace AccountsReceivable.API.Services
                     var result = await _context.SaveCustomerCashBackDetail.FromSqlRaw(sqlText, parmsList).ToListAsync();
                 }
 
-                responseobj.Data = "Ok";
+                responseobj.Data = "saved";
                 responseobj.Status.Code = (int)HttpStatusCode.OK;
                 responseobj.Status.Message = "";
                 responseobj.Status.Response = "success";
