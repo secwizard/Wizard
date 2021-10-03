@@ -213,6 +213,39 @@ namespace AccountsReceivable.API.Services
             }
             return responseobj;
         }
+        public async Task<ResponseList<ResponseGetTransactionMode>> GetTransactionMode()
+        {
+            ResponseList<ResponseGetTransactionMode> responseobj = new ResponseList<ResponseGetTransactionMode>();
+            try
+            {
+                string sqlText = $"EXECUTE dbo.GetTransactionMode";
+                var result = await _context.GetTransactionMode.FromSqlRaw(sqlText,"").ToListAsync();
+
+                if (result != null && result.Count > 0)
+                {
+                    responseobj.Data = result;
+                    responseobj.Status.Code = (int)HttpStatusCode.OK;
+                    responseobj.Status.Message = "";
+                    responseobj.Status.Response = "Success";
+                }
+                else
+                {
+                    responseobj.Data = null;
+                    responseobj.Status.Code = (int)HttpStatusCode.NotFound;
+                    responseobj.Status.Message = "Data Not Found";
+                    responseobj.Status.Response = "failed";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                responseobj.Data = null;
+                responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
+                responseobj.Status.Message = ex.Message.ToString();
+                responseobj.Status.Response = "failed";
+            }
+            return responseobj;
+        }
 
     }
 }

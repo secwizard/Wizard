@@ -11,5 +11,6 @@ namespace AccountsReceivable.API.Services.Interface
         Task<Response<OrderPaymentRequest>> OrderWithPayment(OrderPaymentRequest dto);
         Task<Response<OrderWithOutPaymentRequest>> OrderWithOutPayment(OrderWithOutPaymentRequest dto);
         Task<ResponseList<ResponseCustomerOrderPaymentList>> CustomerOrderPaymentList(CustomerOrderPaymentList request);
+        Task<ResponseList<ResponseGetTransactionMode>> GetTransactionMode();
     }
 }
