@@ -55,5 +55,11 @@ namespace AccountsReceivable.API.Controllers
         {
             return await _updateTransactionService.CustomerOrderPaymentList(request);
         }
+
+        [HttpPost]
+        public async Task<ResponseList<ResponseGetTransactionMode>> GetTransactionMode()
+        {
+            return await _updateTransactionService.GetTransactionMode();
+        }
     }
 }
