@@ -22,6 +22,7 @@ namespace AccountsReceivable.API.Models
         public string TransactionType { get; set; }
         public string TransactionMode { get; set; }
         public string CardNumber { get; set; }
+        public string Note { get; set; }
         public DateTime? TransactionDate { get; set; }
     }
 }
