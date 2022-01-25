@@ -26,7 +26,7 @@ namespace AccountsReceivable.API.Models.RequestModel
         public string Note { get; set; }
         public string CreatedFrom { get; set; }
         public string OrderDetails { get; set; }
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
