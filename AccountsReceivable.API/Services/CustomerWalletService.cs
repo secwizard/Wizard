@@ -12,11 +12,14 @@ using System.Threading.Tasks;
 using AccountsReceivable.API.Models.ResponseModel;
 using System.Linq;
 using AccountsReceivable.API.Models.RequestModel;
+using log4net;
+using System.Reflection;
 
 namespace AccountsReceivable.API.Services
 {
     public class CustomerWalletService : ICustomerWalletService
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly AccountReceivableDataContext _context;
         public CustomerWalletService(AccountReceivableDataContext context)
         {
@@ -67,6 +70,7 @@ namespace AccountsReceivable.API.Services
             }
             catch (Exception ex)
             {
+                log.Info("***CreateNewCustomerWallet*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 responseobj.Data = null;
                 responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
                 responseobj.Status.Message = ex.Message.ToString();
@@ -112,6 +116,7 @@ namespace AccountsReceivable.API.Services
             }
             catch (Exception ex)
             {
+                log.Info("***GetCustomerWalletInfo*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 response.Data = null;
                 response.Status.Code = (int)HttpStatusCode.InternalServerError;
                 response.Status.Message = ex.Message.ToString();
@@ -151,6 +156,7 @@ namespace AccountsReceivable.API.Services
             }
             catch (Exception ex)
             {
+                log.Info("***CheckCustomerWalletDetailForPlaceOrder*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 response.Data = null;
                 response.Status.Code = (int)HttpStatusCode.InternalServerError;
                 response.Status.Message = ex.Message.ToString();
@@ -183,9 +189,9 @@ namespace AccountsReceivable.API.Services
                         new SqlParameter("@UserId", customerPaymentRequest.UserId),
                         new SqlParameter("@CreatedAt", customerPaymentRequest.CreatedAt)
                     };
-
                     string sqlText = $"EXECUTE dbo.SaveCustomerPayment @CompanyId, @CustomerId, @TransactionAmount, @TransactionModeId, @TransactionType, @TransactionDate, @CardNumber, @CardHolderName, @ChequeNo, @ChequeHolderName, @Note, @CreatedFrom, @OrderDetails, @UserId, @CreatedAt";
                     var result = await _context.SaveCustomerPayment.FromSqlRaw(sqlText, parmsList).ToListAsync();
+
 
 
                     if (result != null && result.Count > 0)
@@ -214,6 +220,7 @@ namespace AccountsReceivable.API.Services
             }
             catch (Exception ex)
             {
+                log.Info("***SaveCustomerPayment*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 responseobj.Data = null;
                 responseobj.Status.Code = (int)HttpStatusCode.InternalServerError;
                 responseobj.Status.Message = ex.Message.ToString();
