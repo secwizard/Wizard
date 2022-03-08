@@ -2,9 +2,11 @@
 using AccountsReceivable.API.Models.RequestModel;
 using AccountsReceivable.API.Services.Interface;
 using AccountsReceivable.API.ViewModels;
+using log4net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AccountsReceivable.API.Controllers
@@ -13,6 +15,7 @@ namespace AccountsReceivable.API.Controllers
     [ApiController]
     public class CustomerWalletController : ControllerBase
     {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly ICustomerWalletService _cwService;
         public CustomerWalletController(ICustomerWalletService cwService)
         {
@@ -34,6 +37,7 @@ namespace AccountsReceivable.API.Controllers
             }
             catch (Exception ex)
             {
+                log.Info("***GetCustomerWalletInfo*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 return BadRequest(ex);
             }
         }
@@ -47,6 +51,7 @@ namespace AccountsReceivable.API.Controllers
             }
             catch (Exception ex)
             {
+                log.Info("***CheckCustomerWalletDetailForPlaceOrder*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 return BadRequest(ex);
             }
         }
@@ -60,6 +65,7 @@ namespace AccountsReceivable.API.Controllers
             }
             catch (Exception ex)
             {
+                log.Info("***SaveCustomerPayment*** Date : " + DateTime.UtcNow + " Error : " + ex.Message + "StackTrace : " + ex.StackTrace.ToString());
                 return BadRequest(ex);
             }
         }
